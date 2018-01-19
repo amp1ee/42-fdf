@@ -1,6 +1,14 @@
 #include <stdio.h>
 #include "fdf.h"
 
+float	rad(int deg)
+{
+	float	radians;
+
+	radians = deg * PI / 180.0;
+	return (radians);
+}
+
 int		key_handler(int keycode, void *param)
 {
 	t_mlx	*p;
@@ -12,7 +20,20 @@ int		key_handler(int keycode, void *param)
 		mlx_destroy_window(p->mlx, p->window);
 		p = NULL;
 		exit(0);
+		return (0);
 	}
+	else if (keycode == KB_Up)
+	{
+		mlx_clear_window(p->mlx, p->window);
+		p->alph += rad(2);
+	}
+	else if (keycode == KB_Down)
+		p->alph -= rad(2);
+	else if (keycode == KB_Left)
+		p->beta += rad(2);
+	else if (keycode == KB_Right)
+		p->beta -= rad(2);
+
 	draw(p);
 	return (0);
 }
@@ -34,6 +55,8 @@ t_mlx	*init_fdf(void)
 	fdf->w = 0;
 	fdf->h = 0;
 	fdf->coords = NULL;
+	fdf->alph = 0;
+	fdf->beta = 0;
 	return (fdf);
 }
 
@@ -83,8 +106,8 @@ int		read_map(char *map_path, t_mlx *fdf)
 		fdf->h += 1;
 	}
 	fdf->w = fdf->w / fdf->h;
-/*	printf("w = %d, h = %d\n", fdf->w, fdf->h);
-	while (fdf->coords)
+	printf("w = %d, h = %d\n", fdf->w, fdf->h); 
+/*	while (fdf->coords)
 	{
 		printf("c = %d\n", fdf->coords->c);
 		fdf->coords = fdf->coords->next;
@@ -124,21 +147,47 @@ void	put_pxl(t_mlx *e, int x, int y, unsigned int c)
 	e->pxl[++i] = c >> 16;
 }
 
+int		get_color(int c)
+{
+	int		red;
+
+	red = 0xFF0000;
+	red += (red >> 8) * c;
+	return (red);
+}
+
 void	*draw(t_mlx *fdf)
 {
-	int		x, y;
+	int			x, y;
+	int			w, h;
+	int			xw, yh;
+	t_coords	*coords;
+	float		alph;
+	float		beta;
 
-	x = 0;
-	while (x < WIDTH)
+	coords = fdf->coords;
+	w = fdf->w;
+	h = fdf->h;
+	xw = 30;
+	yh = 30;
+	int xoff = 120;
+	int yoff = 60;
+	alph = fdf->alph;
+	beta = fdf->beta;
+	y = 0;
+	while (y < h)
 	{
-		y = 0;
-		while (y < HEIGHT)
+		x = 0;
+		while (x < w && coords)
 		{
-			if (y > 0 && !(x*x % y))
-				put_pxl(fdf, x, y, 0xabcdef);
-			y++;
+			if (coords->c > 0)
+				put_pxl(fdf, x*xw*cos(alph) + y*yh*sin(alph) + xoff, (y - coords->c/3)*yh*cos(beta) + x*xw*sin(beta) + yoff, get_color(coords->c));
+			else
+				put_pxl(fdf,x*xw*cos(alph) + y*yh*sin(alph) + xoff, y*yh*cos(beta) + x*xw*sin(beta) + yoff, 0xFFFFFF);
+			coords = coords->next;
+			x++;
 		}
-		x++;
+		y++;
 	}
 	mlx_put_image_to_window(fdf->mlx, fdf->window, fdf->img, 0, 0);
 

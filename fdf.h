@@ -6,8 +6,8 @@
 #include "../libft/libft.h"
 #include <fcntl.h>
 
-#define 	WIDTH						600
-#define 	HEIGHT						400
+#define 	WIDTH						1280
+#define 	HEIGHT						720
 #define 	KB_Esc						0xff1b
 #define		KB_X						120
 #define		KB_Z						122
@@ -19,6 +19,8 @@
 #define		KP_Subtract					0xffad
 #define 	KB_i                        0x0069
 #define		KB_u						0x0075
+
+#define		PI							3.14159265359
 
 typedef	struct	s_coords
 {
@@ -38,7 +40,8 @@ typedef struct	s_mlx
 	int			bpp;
 	int			s_line;
 	int			ed;
-
+	float		alph;
+	float		beta;
 }				t_mlx;
 
 void	*draw(t_mlx *mlx_p);
