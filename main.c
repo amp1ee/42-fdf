@@ -27,6 +27,7 @@ int		key_handler(int keycode, void *param)
 	{
 		printf("Escape\n");
 		mlx_destroy_window(p->mlx, p->window);
+		ft_memdel((void **)&p);
 		p = NULL;
 		exit(0);
 		return (0);
@@ -110,6 +111,7 @@ int		read_map(char *map_path, t_mlx *fdf)
 	while (get_next_line(fd, &line) > 0)
 	{
 		split = ft_strsplit(line, ' ');
+		ft_strdel(&line);
 		while (*split != NULL)
 		{
 			push_coord(&coords, new_coord(*split));
