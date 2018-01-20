@@ -28,13 +28,19 @@ typedef	struct	s_coords
 	struct s_coords		*next;
 }				t_coords;
 
+typedef struct	s_point
+{
+	int			x;
+	int			y;
+}				t_point;
+
 typedef struct	s_mlx
 {
 	void		*mlx;
 	void		*window;
 	void		*img;
 	char		*pxl;
-	t_coords	*coords;
+	int			*coord_arr;
 	int			w;
 	int			h;
 	int			bpp;

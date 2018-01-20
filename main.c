@@ -1,12 +1,21 @@
 #include <stdio.h>
 #include "fdf.h"
 
+int hc = 3;
+
 float	rad(int deg)
 {
 	float	radians;
 
 	radians = deg * PI / 180.0;
 	return (radians);
+}
+
+int		exit_x(void *par)
+{
+	(void)par;
+	exit(1);
+	return (0);
 }
 
 int		key_handler(int keycode, void *param)
@@ -22,18 +31,20 @@ int		key_handler(int keycode, void *param)
 		exit(0);
 		return (0);
 	}
-	else if (keycode == KB_Up)
-	{
-		mlx_clear_window(p->mlx, p->window);
-		p->alph += rad(2);
-	}
-	else if (keycode == KB_Down)
-		p->alph -= rad(2);
 	else if (keycode == KB_Left)
-		p->beta += rad(2);
+		p->alph -= rad(2);
 	else if (keycode == KB_Right)
+		p->alph += rad(2);
+	else if (keycode == KB_Up)
 		p->beta -= rad(2);
-
+	else if (keycode == KB_Down)
+		p->beta += rad(2);
+	else if (keycode == KP_Add)
+		hc++;
+	else if (keycode == KP_Subtract)
+		hc--;
+	if (hc == 0)
+		hc = 1;
 	draw(p);
 	return (0);
 }
@@ -54,7 +65,6 @@ t_mlx	*init_fdf(void)
 	fdf->pxl = mlx_get_data_addr(fdf->img, &(fdf->bpp), &(fdf->s_line), &(fdf->ed));
 	fdf->w = 0;
 	fdf->h = 0;
-	fdf->coords = NULL;
 	fdf->alph = 0;
 	fdf->beta = 0;
 	return (fdf);
@@ -89,29 +99,35 @@ int		read_map(char *map_path, t_mlx *fdf)
 {
 	int			fd;
 	char		*line;
-	char		**coords;
-	
+	char		**split;
+	t_coords	*coords;
+	int			*coord_arr;
+
+	coords = NULL;
 	fd = open(map_path, O_RDONLY);
 	if (fd < 0)
 		return (-1);
 	while (get_next_line(fd, &line) > 0)
 	{
-		coords = ft_strsplit(line, ' ');
-		while (*coords != NULL)
+		split = ft_strsplit(line, ' ');
+		while (*split != NULL)
 		{
-			push_coord(&fdf->coords, new_coord(*coords));
+			push_coord(&coords, new_coord(*split));
 			fdf->w += 1;
-			coords++;
+			split++;
 		}
 		fdf->h += 1;
 	}
+	fdf->coord_arr = (int *)malloc(sizeof(int) * fdf->w);
+	coord_arr = fdf->coord_arr;
 	fdf->w = fdf->w / fdf->h;
-	printf("w = %d, h = %d\n", fdf->w, fdf->h); 
-/*	while (fdf->coords)
+	printf("w = %d, h = %d\n", fdf->w, fdf->h);
+	while (coords)
 	{
-		printf("c = %d\n", fdf->coords->c);
-		fdf->coords = fdf->coords->next;
-	}*/
+		*(coord_arr) = coords->c;
+		coords = coords->next;
+		coord_arr++;
+	}
 	close(fd);
 	return (0);
 }
@@ -123,28 +139,22 @@ int		main(int ac, char **av)
 	fdf = init_fdf();
 	if (ac == 2)
 		read_map(av[1], fdf);
-	draw(fdf);
-	mlx_key_hook(fdf->window, &key_handler, fdf);
+	//draw(fdf);
+	mlx_key_hook(fdf->window, key_handler, fdf);
 	mlx_loop(fdf->mlx);
 	return (0);
 }
 
-void	put_pxl(t_mlx *e, int x, int y, unsigned int c)
+void	put_pxl(t_mlx *fdf, t_point *p, unsigned int color)
 {
 	int		i;
 
-	if (x > WIDTH)
-		x = WIDTH;
-	if (y > HEIGHT)
-		y = HEIGHT;
-	if (x < 0)
-		x = 0;
-	if (y < 0)
-		y = 0;
-	i = (x * 4) + (y * e->s_line);
-	e->pxl[i] = c;
-	e->pxl[++i] = c >> 8;
-	e->pxl[++i] = c >> 16;
+	if (p->x > WIDTH || p->y > HEIGHT || p->x < 0 || p->y < 0)
+		return;
+	i = (p->x * 4) + (p->y * fdf->s_line);
+	fdf->pxl[i] = color;
+	fdf->pxl[++i] = color >> 8;
+	fdf->pxl[++i] = color >> 16;
 }
 
 int		get_color(int c)
@@ -156,35 +166,86 @@ int		get_color(int c)
 	return (red);
 }
 
+void	clear_image(void *img, int bpp)
+{
+	ft_bzero(img, WIDTH * HEIGHT * bpp);
+}
+
+void draw_line(int z, t_mlx *fdf, t_point *p0, t_point *p1) {
+    const int deltaX = abs(p1->x - p0->x);
+    const int deltaY = abs(p1->y - p0->y);
+    const int signX = p0->x < p1->x ? 1 : -1;
+    const int signY = p0->y < p1->y ? 1 : -1;
+    //
+    t_point *p;
+    int error = deltaX - deltaY;
+    //
+    while(p0->x != p1->x || p0->y != p1->y) 
+	{
+		p = (t_point *)malloc(sizeof(t_point));
+		p->x = p0->x;
+		p->y = p0->y;
+		put_pxl(fdf, p, get_color(z * 3));
+		const int error2 = error * 2;
+		//
+		if (error2 > -deltaY) 
+        {
+            error -= deltaY;
+            p0->x += signX;
+        }
+        if (error2 < deltaX) 
+        {
+            error += deltaX;
+            p0->y += signY;
+        }
+    }
+}
+
+t_point	*point(int x, int y, int z, t_mlx *fdf)
+{
+	float		alph;
+	float		beta;
+	int			xw, yh;
+
+	t_point		*p;
+	alph = fdf->alph;
+	beta = fdf->beta;
+	xw = 30;
+	yh = 30;
+	int 	xoff = 120;
+	int 	yoff = 60;
+	if (!(p = (t_point *)malloc(sizeof(t_point))))
+		return (NULL);
+	p->x = x * xw * cos(alph) + y * yh * sin(alph) + xoff;
+	p->y = (y - z) * yh * cos(beta) + x * xw * sin(beta) + yoff;
+	return (p);
+}
+
 void	*draw(t_mlx *fdf)
 {
 	int			x, y;
 	int			w, h;
-	int			xw, yh;
-	t_coords	*coords;
-	float		alph;
-	float		beta;
+	int			*coords;
 
-	coords = fdf->coords;
+	clear_image(fdf->pxl, fdf->bpp /8);
+	coords = fdf->coord_arr;
 	w = fdf->w;
 	h = fdf->h;
-	xw = 30;
-	yh = 30;
-	int xoff = 120;
-	int yoff = 60;
-	alph = fdf->alph;
-	beta = fdf->beta;
+
 	y = 0;
 	while (y < h)
 	{
 		x = 0;
-		while (x < w && coords)
+		while (x < w)
 		{
-			if (coords->c > 0)
-				put_pxl(fdf, x*xw*cos(alph) + y*yh*sin(alph) + xoff, (y - coords->c/3)*yh*cos(beta) + x*xw*sin(beta) + yoff, get_color(coords->c));
+			if (coords[x + y * w] > 0)
+				put_pxl(fdf, point(x, y, coords[x + y * w]/hc, fdf), get_color(coords[x + y * w]));
 			else
-				put_pxl(fdf,x*xw*cos(alph) + y*yh*sin(alph) + xoff, y*yh*cos(beta) + x*xw*sin(beta) + yoff, 0xFFFFFF);
-			coords = coords->next;
+				put_pxl(fdf, point(x, y, 0, fdf), 0xFFFFFF);
+			if (x != w - 1)
+				draw_line(coords[x + y * w], fdf, point(x, y, coords[x + y * w]/hc, fdf), point(x + 1, y, coords[x+1+y*w]/hc, fdf));
+			if (y != h - 1)
+				draw_line(coords[x + y * w], fdf, point(x, y, coords[x + y * w]/hc, fdf), point(x, y + 1, coords[x+(y+1)*w]/hc, fdf));
 			x++;
 		}
 		y++;

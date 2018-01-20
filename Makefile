@@ -12,7 +12,7 @@ MATH=-lm
 all: $(NAME)
 
 $(OBJ): $(SRC)
-	gcc $(FLAGS) $(MLXFLAGS) $(LIBFLAGS) $(MATH) -c $(SRC) -o $(OBJ)
+	gcc $(FLAGS) -c $(SRC) -o $(OBJ)
 
 $(NAME): $(OBJ)
 	gcc $(FLAGS) $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
