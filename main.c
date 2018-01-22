@@ -59,6 +59,8 @@ int		key_handler(int keycode, void *param)
 		hc -= 0.100000;
 	if (hc == 0)
 		hc = 0.100000;*/
+	if (p->cam->zoom == 0)
+		p->cam->zoom = 1;
 	draw(p);
 	return (0);
 }
@@ -306,8 +308,7 @@ t_point	*project(int x, int y, int z, t_mlx *mlx)
 	z *= gridw;
 	if (!(p = new_point(0, 0, 0, 0)))
 		return (NULL);
-						/*	Gets color:	*/
-	p->rgb = get_grad(z, *mlx);
+	p->rgb = get_grad(z / gridw, *mlx);
 	p->x = cos(b) * cos(g) * x + cos(b) * sin(g) * y + sin(b) * z;
 	p->y = (-sin(a) * sin(b) * cos(g) - cos(a) * sin(g)) * x +
 		(cos(a) * cos(g) - sin(a) * sin(b) * sin(g)) * y + sin(a) * cos(b) * z;
