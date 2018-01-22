@@ -42,7 +42,15 @@ typedef struct	s_point
 	int			x;
 	int			y;
 	int			z;
+	int			rgb;
 }				t_point;
+
+typedef struct	s_color
+{
+	char		r;
+	char		g;
+	char		b;
+}				t_color;
 
 typedef struct	s_cam
 {
@@ -69,6 +77,8 @@ typedef struct	s_mlx
 	int			s_line;
 	int			ed;
 	t_cam		*cam;
+	int			min_depth;
+	int			max_depth;
 }				t_mlx;
 
 void	*draw(t_mlx *mlx_p);

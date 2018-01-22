@@ -1,19 +1,12 @@
 #include <stdio.h>
 #include "fdf.h"
 
-float	rad(int deg)
+float	rad(float deg)
 {
 	float	radians;
 
 	radians = deg * PI / 180.0;
 	return (radians);
-}
-
-int		exit_x(void *par)
-{
-	(void)par;
-	exit(1);
-	return (0);
 }
 
 int		key_handler(int keycode, void *param)
@@ -54,6 +47,12 @@ int		key_handler(int keycode, void *param)
 		p->cam->yoff -= 10;
 	else if (keycode == KP_2)
 		p->cam->yoff += 10;
+	else if (keycode == KB_i)
+	{
+		p->cam->alph = 0;
+		p->cam->beta = 0;
+		p->cam->gamm = 0;
+	}	
 /*	else if (keycode == KP_Add)
 		hc += 0.100000;
 	else if (keycode == KP_Subtract)
@@ -64,7 +63,7 @@ int		key_handler(int keycode, void *param)
 	return (0);
 }
 
-t_point	*new_point(int x, int y, int z)
+t_point	*new_point(int x, int y, int z, int rgb)
 {
 	t_point		*p;
 
@@ -73,6 +72,7 @@ t_point	*new_point(int x, int y, int z)
 	p->x = x;
 	p->y = y;
 	p->z = z;
+	p->rgb = rgb;
 	return (p);
 }
 
@@ -94,10 +94,10 @@ t_mlx	*init_fdf(void)
 	fdf->h = 0;
 	if (!(fdf->cam = (t_cam *)malloc(sizeof(t_cam))))
 		return (NULL);
-	fdf->cam->alph = 0;
+	fdf->cam->alph = rad(-35.264);
 	fdf->cam->beta = 0;
-	fdf->cam->gamm = 0;
-	fdf->cam->pos = new_point(0, 0, 0);
+	fdf->cam->gamm = rad(45);
+	fdf->cam->pos = new_point(0, 0, 0, 0);
 	fdf->cam->zoom = 30;
 	fdf->cam->xoff = WIDTH /4;
 	fdf->cam->yoff = HEIGHT /4;
@@ -128,7 +128,33 @@ void		push_coord(t_coords **head, t_coords *new)
 		n->next = new;
 	}
 }
+void		find_depth(t_mlx *m)
+{
+	int			min;
+	int			max;
+	t_point		v;
+	int			z;
 
+	min = 2147483647;
+	max = -2147483648;
+	v.y = 0;
+	while (v.y < m->h)
+	{
+		v.x = 0;
+		while (v.x < m->w)
+		{
+			z = m->coord_arr[(int)v.y * m->w + (int)v.x];
+			if (z < min)
+				min = z;
+			if (z > max)
+				max = z;
+			v.x++;
+		}
+		v.y++;
+	}
+	m->min_depth = min;
+	m->max_depth = max;
+}
 int		read_map(char *map_path, t_mlx *fdf)
 {
 	int			fd;
@@ -163,6 +189,7 @@ int		read_map(char *map_path, t_mlx *fdf)
 		coord_arr++;
 	}
 	close(fd);
+	find_depth(fdf);
 	return (0);
 }
 
@@ -173,6 +200,7 @@ int		main(int ac, char **av)
 	fdf = init_fdf();
 	if (ac == 2)
 		read_map(av[1], fdf);
+
 	draw(fdf);
 	mlx_hook(fdf->window, 2, 5, key_handler, fdf);
 	mlx_loop(fdf->mlx);
@@ -183,7 +211,7 @@ void	put_pxl(t_mlx *fdf, t_point *p, unsigned int color)
 {
 	int		i;
 
-	if (p->x > WIDTH || p->y > HEIGHT || p->x < 0 || p->y < 0)
+	if (p->x >= WIDTH || p->y >= HEIGHT || p->x < 0 || p->y < 0)
 		return;
 	i = (p->x * 4) + (p->y * fdf->s_line);
 	fdf->pxl[i] = color;
@@ -191,43 +219,72 @@ void	put_pxl(t_mlx *fdf, t_point *p, unsigned int color)
 	fdf->pxl[++i] = color >> 16;
 }
 
-int		get_color(int c)
-{
-	int		red;
-
-	red = 0xFF0000;
-	red += (red >> 8) * c;
-	return (red);
-}
-
 void	clear_image(void *img, int bpp)
 {
 	ft_bzero(img, WIDTH * HEIGHT * bpp);
 }
 
-void draw_line(t_mlx *fdf, t_point *p0, t_point *p1) {
-    const int deltaX = abs(p1->x - p0->x);
-    const int deltaY = abs(p1->y - p0->y);
-    const int signX = p0->x < p1->x ? 1 : -1;
-    const int signY = p0->y < p1->y ? 1 : -1;
-    //
-    t_point *p;
-    int error = deltaX - deltaY;
-    //
+
+double	ft_ilerp(double val, double first, double second)
+{
+	if (val == first)
+		return (0.0);
+	if (val == second)
+		return (1.0);
+	return ((val - first) / (second - first));
+}
+int		ft_lerpi(int first, int second, double p)
+{
+	if (first == second)
+		return (first);
+	return ((int)((double)first + (second - first) * p));
+}
+int		clerp(int c1, int c2, double p)
+{
+	int r;
+	int g;
+	int b;
+
+	if (c1 == c2)
+		return (c1);
+	r = ft_lerpi((c1 >> 16) & 0xFF, (c2 >> 16) & 0xFF, p);
+	g = ft_lerpi((c1 >> 8) & 0xFF, (c2 >> 8) & 0xFF, p);
+	b = ft_lerpi(c1 & 0xFF, c2 & 0xFF, p);
+	return (r << 16 | g << 8 | b);
+}
+
+int		get_grad(int z, t_mlx m)
+{
+	int			rgb;
+
+	rgb = clerp(0xFF0000, 0xFFFFFF, ft_ilerp(z,
+				m.min_depth, m.max_depth));
+	return (rgb);
+}
+
+void	draw_line(t_mlx *fdf, t_point *p0, t_point *p1) {
+    const int 	deltaX = abs(p1->x - p0->x);
+    const int 	deltaY = abs(p1->y - p0->y);
+    const int 	signX = p0->x < p1->x ? 1 : -1;
+    const int 	signY = p0->y < p1->y ? 1 : -1;
+    int 		error = deltaX - deltaY;
+    double	perc;
+   	t_point		p = *p0;
+
     while(p0->x != p1->x || p0->y != p1->y) 
 	{
-		p = (t_point *)malloc(sizeof(t_point));
-		p->x = p0->x;
-		p->y = p0->y;
-		put_pxl(fdf, p, get_color(p0->z));
+		perc = (deltaX > deltaY ?
+			ft_ilerp((int)p0->x, (int)p.x, (int)p1->x)
+			: ft_ilerp((int)p0->y, (int)p.y, (int)p1->y));
+		put_pxl(fdf, p0, clerp(p0->rgb,
+				p1->rgb, perc));
 		const int error2 = error * 2;
-		//
 		if (error2 > -deltaY) 
         {
             error -= deltaY;
             p0->x += signX;
         }
-        if (error2 < deltaX) 
+        if (error2 < deltaX)
         {
             error += deltaX;
             p0->y += signY;
@@ -235,29 +292,29 @@ void draw_line(t_mlx *fdf, t_point *p0, t_point *p1) {
     }
 }
 
-t_point	*point(int x, int y, int z, t_cam *cam)
+t_point	*project(int x, int y, int z, t_mlx *mlx)
 {
-	float		a = cam->alph;
-	float		b = cam->beta;
-	float		g = cam->gamm;
+	float		a = mlx->cam->alph;
+	float		b = mlx->cam->beta;
+	float		g = mlx->cam->gamm;
 	int			gridw;
-
 	t_point		*p;
-	gridw = abs(cam->zoom);
+
+	gridw = abs(mlx->cam->zoom);
 	x *= gridw;
 	y *= gridw;
 	z *= gridw;
-	if (!(p = new_point(0, 0, 0)))
+	if (!(p = new_point(0, 0, 0, 0)))
 		return (NULL);
-
-	p->x = cos(b)*cos(g)*x + cos(b)*sin(g)*y + sin(b)*z;
-	p->y = (-sin(a)*sin(b)*cos(g)-cos(a)*sin(g))*x + (-sin(a)*sin(b)*sin(g)+cos(a)*cos(g))*y +
-		sin(a)*cos(b)*z;
-	p->z = (-sin(b)*cos(a)*cos(g)+sin(a)*sin(g))*x + (-sin(b)*cos(a)*sin(g)-sin(a)*cos(g))*y +
-		cos(a)*cos(b)*z;
-
-	p->x += cam->xoff;
-	p->y += cam->yoff;
+						/*	Gets color:	*/
+	p->rgb = get_grad(z, *mlx);
+	p->x = cos(b) * cos(g) * x + cos(b) * sin(g) * y + sin(b) * z;
+	p->y = (-sin(a) * sin(b) * cos(g) - cos(a) * sin(g)) * x +
+		(cos(a) * cos(g) - sin(a) * sin(b) * sin(g)) * y + sin(a) * cos(b) * z;
+	p->z = (-sin(b) * cos(a) * cos(g) + sin(a) * sin(g)) * x + (-sin(b) *
+		cos(a) * sin(g) - sin(a) * cos(g)) * y + cos(a) * cos(b) * z;
+	p->x += mlx->cam->xoff;
+	p->y += mlx->cam->yoff;
 	return (p);
 }
 
@@ -280,14 +337,13 @@ void	*draw(t_mlx *fdf)
 		{
 			z = coords[x + y * w];
 			if (x != w - 1)
-				draw_line(fdf, point(x, y, z/10, fdf->cam), point(x + 1, y, coords[x+1+y*w]/10, fdf->cam));
+				draw_line(fdf, project(x, y, z, fdf), project(x + 1, y, coords[x+1+y*w], fdf));
 			if (y != h - 1)
-				draw_line(fdf, point(x, y, z/10, fdf->cam), point(x, y + 1, coords[x+(y+1)*w]/10, fdf->cam));
+				draw_line(fdf, project(x, y, z, fdf), project(x, y + 1, coords[x+(y+1)*w], fdf));
 			x++;
 		}
 		y++;
 	}
 	mlx_put_image_to_window(fdf->mlx, fdf->window, fdf->img, 0, 0);
-
 	return (NULL);
 }
