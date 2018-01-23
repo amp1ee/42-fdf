@@ -3,7 +3,7 @@ SRC=main.c
 OBJ=$(SRC:.c=.o)
 NAME=fdf
 FLAGS=-Wall -Wextra -Werror
-MLXFLAGS=-lmlx -lXext -lX11
+MLXFLAGS=-lmlx -framework OpenGL -framework AppKit
 LIBFLAGS=-lft -L../libft
 MATH=-lm
 DEPS=fdf.h
