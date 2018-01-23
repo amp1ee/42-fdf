@@ -130,7 +130,7 @@ void		push_coord(t_coords **head, t_coords *new)
 		n->next = new;
 	}
 }
-void		find_depth(t_mlx *m)
+void		find_range(t_mlx *p)
 {
 	int			min;
 	int			max;
@@ -140,12 +140,12 @@ void		find_depth(t_mlx *m)
 	min = 2147483647;
 	max = -2147483648;
 	v.y = 0;
-	while (v.y < m->h)
+	while (v.y < p->h)
 	{
 		v.x = 0;
-		while (v.x < m->w)
+		while (v.x < p->w)
 		{
-			z = m->coord_arr[(int)v.y * m->w + (int)v.x];
+			z = p->coord_arr[(int)v.y * p->w + (int)v.x];
 			if (z < min)
 				min = z;
 			if (z > max)
@@ -154,8 +154,8 @@ void		find_depth(t_mlx *m)
 		}
 		v.y++;
 	}
-	m->min_depth = min;
-	m->max_depth = max;
+	p->min_depth = min;
+	p->max_depth = max;
 }
 int		read_map(char *map_path, t_mlx *fdf)
 {
@@ -191,7 +191,7 @@ int		read_map(char *map_path, t_mlx *fdf)
 		coord_arr++;
 	}
 	close(fd);
-	find_depth(fdf);
+	find_range(fdf);
 	return (0);
 }
 
@@ -227,21 +227,21 @@ void	clear_image(void *img, int bpp)
 }
 
 
-double	ft_ilerp(double val, double first, double second)
+double	find_perc(double cur, double start, double end)
 {
-	if (val == first)
+	if (cur == start)
 		return (0.0);
-	if (val == second)
+	if (cur == end)
 		return (1.0);
-	return ((val - first) / (second - first));
+	return ((cur - start) / (end - start));
 }
-int		ft_lerpi(int first, int second, double p)
+int		add_perc(int first, int second, double p)
 {
 	if (first == second)
 		return (first);
 	return ((int)((double)first + (second - first) * p));
 }
-int		clerp(int c1, int c2, double p)
+int		get_color(int c1, int c2, double p)
 {
 	int r;
 	int g;
@@ -249,9 +249,9 @@ int		clerp(int c1, int c2, double p)
 
 	if (c1 == c2)
 		return (c1);
-	r = ft_lerpi((c1 >> 16) & 0xFF, (c2 >> 16) & 0xFF, p);
-	g = ft_lerpi((c1 >> 8) & 0xFF, (c2 >> 8) & 0xFF, p);
-	b = ft_lerpi(c1 & 0xFF, c2 & 0xFF, p);
+	r = add_perc((c1 >> 16) & 0xFF, (c2 >> 16) & 0xFF, p);
+	g = add_perc((c1 >> 8) & 0xFF, (c2 >> 8) & 0xFF, p);
+	b = add_perc(c1 & 0xFF, c2 & 0xFF, p);
 	return (r << 16 | g << 8 | b);
 }
 
@@ -259,7 +259,7 @@ int		get_grad(int z, t_mlx m)
 {
 	int			rgb;
 
-	rgb = clerp(0xFF0000, 0xFFFFFF, ft_ilerp(z,
+	rgb = get_color(0x009BDF, 0xFF0000, find_perc(z,
 				m.min_depth, m.max_depth));
 	return (rgb);
 }
@@ -276,9 +276,9 @@ void	draw_line(t_mlx *fdf, t_point *p0, t_point *p1) {
     while(p0->x != p1->x || p0->y != p1->y) 
 	{
 		perc = (deltaX > deltaY ?
-			ft_ilerp((int)p0->x, (int)p.x, (int)p1->x)
-			: ft_ilerp((int)p0->y, (int)p.y, (int)p1->y));
-		put_pxl(fdf, p0, clerp(p0->rgb,
+			find_perc((int)p0->x, (int)p.x, (int)p1->x)
+			: find_perc((int)p0->y, (int)p.y, (int)p1->y));
+		put_pxl(fdf, p0, get_color(p0->rgb,
 				p1->rgb, perc));
 		const int error2 = error * 2;
 		if (error2 > -deltaY) 
