@@ -106,30 +106,6 @@ t_mlx	*init_fdf(void)
 	return (fdf);
 }
 
-t_coords	*new_coord(char *line)
-{
-	t_coords	*new;
-
-	new = (t_coords *)malloc(sizeof(t_coords));
-	new->c = ft_atoi(line);
-	new->next = NULL;
-	return (new);
-}
-
-void		push_coord(t_coords **head, t_coords *new)
-{
-	t_coords	*n;
-
-	n = *head;
-	if (!(*head))
-		*head = new;
-	else
-	{
-		while (n->next)
-			n = n->next;
-		n->next = new;
-	}
-}
 void		find_range(t_mlx *p)
 {
 	int			min;
@@ -157,15 +133,36 @@ void		find_range(t_mlx *p)
 	p->min_depth = min;
 	p->max_depth = max;
 }
+
+t_coords	*new_coord(char *line)
+{
+	t_coords	*new;
+
+	new = (t_coords *)malloc(sizeof(t_coords));
+	new->c = ft_atoi(line);
+	new->next = NULL;
+	return (new);
+}
+
+void		push_coord(t_coords **head, t_coords *new)
+{
+	if (!new || !head)
+		return;
+	new->next = *head;
+	*head = new;
+}
+
 int		read_map(char *map_path, t_mlx *fdf)
 {
 	int			fd;
 	char		*line;
 	char		**split;
 	t_coords	*coords;
+	t_coords	**head;
 	int			*coord_arr;
 
 	coords = NULL;
+	head = &coords;
 	if ((fd = open(map_path, O_RDONLY)) < 0)
 		return (-1);
 	printf("reading the map\n");
@@ -186,10 +183,10 @@ int		read_map(char *map_path, t_mlx *fdf)
 	fdf->w = fdf->w / fdf->h;
 	printf("w = %d, h = %d\n", fdf->w, fdf->h);
 	printf("converting list to arr\n");
-	while (coords)
+	while (*head)
 	{
-		*(coord_arr) = coords->c;
-		coords = coords->next;
+		*(coord_arr) = (*head)->c;
+		(*head) = (*head)->next;
 		coord_arr++;
 	}
 	printf("converted\n");
@@ -348,11 +345,11 @@ void	*draw(t_mlx *fdf)
 		x = 0;
 		while (x < w)
 		{
-			z = coords[x + y * w];
+			z = coords[w * h - (x + y * w)];
 			if (x != w - 1)
-				draw_line(fdf, project(x, y, z, fdf), project(x + 1, y, coords[x+1+y*w], fdf));
+				draw_line(fdf, project(x, y, z, fdf), project(x + 1, y, coords[w*h-(x+1+y*w)], fdf));
 			if (y != h - 1)
-				draw_line(fdf, project(x, y, z, fdf), project(x, y + 1, coords[x+(y+1)*w], fdf));
+				draw_line(fdf, project(x, y, z, fdf), project(x, y + 1, coords[w*h-(x+(y+1)*w)], fdf));
 			x++;
 		}
 		y++;
