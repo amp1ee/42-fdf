@@ -328,6 +328,11 @@ t_point		*project(int x, int y, int z, t_mlx *mlx)
 	return (p);
 }
 
+int		ind(int x, int y, int w, int h)
+{
+	return (w * h - (x + y * w) - 1);
+}
+
 void	*draw(t_mlx *fdf)
 {
 	int			x, y;
@@ -345,11 +350,11 @@ void	*draw(t_mlx *fdf)
 		x = 0;
 		while (x < w)
 		{
-			z = coords[w * h - (x + y * w)];
+			z = coords[ind(x, y, w, h)];
 			if (x != w - 1)
-				draw_line(fdf, project(x, y, z, fdf), project(x + 1, y, coords[w*h-(x+1+y*w)], fdf));
+				draw_line(fdf, project(x, y, z, fdf), project(x + 1, y, coords[ind(x + 1, y, w, h)], fdf));
 			if (y != h - 1)
-				draw_line(fdf, project(x, y, z, fdf), project(x, y + 1, coords[w*h-(x+(y+1)*w)], fdf));
+				draw_line(fdf, project(x, y, z, fdf), project(x, y + 1, coords[ind(x, y + 1, w, h)], fdf));
 			x++;
 		}
 		y++;
