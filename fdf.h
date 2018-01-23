@@ -11,6 +11,7 @@
 
 #define 	WIDTH						1366
 #define 	HEIGHT						768
+
 #define 	KB_Esc						53
 #define		KB_X						7
 #define		KB_Z						6
@@ -28,6 +29,11 @@
 #define		KP_2						84
 #define		KB_W						13
 #define		KB_S						1
+
+#define		LMB							1
+#define		RMB							2
+#define		MWD							5
+#define		MWU							4
 
 #define		PI							3.14159265359
 
@@ -87,5 +93,5 @@ typedef struct	s_mlx
 	int			max_depth;
 }				t_mlx;
 
-void	*draw(t_mlx *mlx_p);
+void	draw(t_mlx *mlx_p);
 #endif

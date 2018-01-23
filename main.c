@@ -101,37 +101,37 @@ t_mlx	*init_fdf(void)
 	fdf->cam->gamm = rad(45);
 	fdf->cam->pos = new_point(0, 0, 0, 0);
 	fdf->cam->zoom = 30;
-	fdf->cam->xoff = WIDTH /4;
-	fdf->cam->yoff = HEIGHT /4;
+	fdf->cam->xoff = WIDTH /3;
+	fdf->cam->yoff = 3 * HEIGHT /4;
 	return (fdf);
 }
 
-void		find_range(t_mlx *p)
+void		find_range(t_mlx *mlx)
 {
 	int			min;
 	int			max;
-	t_point		v;
+	t_point		p;
 	int			z;
 
 	min = 2147483647;
 	max = -2147483648;
-	v.y = 0;
-	while (v.y < p->h)
+	p.y = 0;
+	while (p.y < mlx->h)
 	{
-		v.x = 0;
-		while (v.x < p->w)
+		p.x = 0;
+		while (p.x < mlx->w)
 		{
-			z = p->coord_arr[(int)v.y * p->w + (int)v.x];
+			z = mlx->coord_arr[(int)p.y * mlx->w + (int)p.x];
 			if (z < min)
 				min = z;
 			if (z > max)
 				max = z;
-			v.x++;
+			p.x++;
 		}
-		v.y++;
+		p.y++;
 	}
-	p->min_depth = min;
-	p->max_depth = max;
+	mlx->min_depth = min;
+	mlx->max_depth = max;
 }
 
 t_coords	*new_coord(char *line)
@@ -165,7 +165,6 @@ int		read_map(char *map_path, t_mlx *fdf)
 	head = &coords;
 	if ((fd = open(map_path, O_RDONLY)) < 0)
 		return (-1);
-	printf("reading the map\n");
 	while (get_next_line(fd, &line) > 0)
 	{
 		split = ft_strsplit(line, ' ');
@@ -182,16 +181,36 @@ int		read_map(char *map_path, t_mlx *fdf)
 	coord_arr = fdf->coord_arr;
 	fdf->w = fdf->w / fdf->h;
 	printf("w = %d, h = %d\n", fdf->w, fdf->h);
-	printf("converting list to arr\n");
 	while (*head)
 	{
 		*(coord_arr) = (*head)->c;
 		(*head) = (*head)->next;
 		coord_arr++;
 	}
-	printf("converted\n");
 	close(fd);
 	find_range(fdf);
+	return (0);
+}
+
+int		mouse_handler(int button, int mouseX, int mouseY, void *param)
+{
+	t_mlx				*mlx;
+
+	mlx = (t_mlx *)param;
+	if (mouseY < 0)
+		return (1);
+	else if (button == LMB)
+	{
+		mlx->cam->xoff = mouseX;
+		mlx->cam->yoff = mouseY;
+	}
+	else if (button == MWD)
+		mlx->cam->zoom--;
+	else if (button == MWU)
+		mlx->cam->zoom++;
+	if (mlx->cam->zoom == 0)
+		mlx->cam->zoom = 1;
+	draw(mlx);
 	return (0);
 }
 
@@ -205,6 +224,7 @@ int		main(int ac, char **av)
 
 	draw(fdf);
 	mlx_hook(fdf->window, 2, 5, key_handler, fdf);
+	mlx_mouse_hook(fdf->window, mouse_handler, fdf);
 	mlx_loop(fdf->mlx);
 	return (0);
 }
@@ -311,7 +331,7 @@ t_point		*project(int x, int y, int z, t_mlx *mlx)
 	int			gridw;
 	t_point		*p;
 
-	gridw = abs(mlx->cam->zoom);
+	gridw = mlx->cam->zoom;
 	x *= gridw;
 	y *= gridw;
 	z *= gridw;
@@ -333,32 +353,48 @@ int		ind(int x, int y, int w, int h)
 	return (w * h - (x + y * w) - 1);
 }
 
-void	*draw(t_mlx *fdf)
+void	draw(t_mlx *fdf)
 {
-	int			x, y;
-	int			w, h;
+	t_point		p;
 	int			*coords;
-	int			z;
 
 	clear_image(fdf->pxl, fdf->bpp /8);
 	coords = fdf->coord_arr;
-	w = fdf->w;
-	h = fdf->h;
-	y = 0;
-	while (y < h)
+	p.y = 0;
+	while (p.y < (*fdf).h)
 	{
-		x = 0;
-		while (x < w)
+		p.x = 0;
+		while (p.x < (*fdf).w)
 		{
-			z = coords[ind(x, y, w, h)];
-			if (x != w - 1)
-				draw_line(fdf, project(x, y, z, fdf), project(x + 1, y, coords[ind(x + 1, y, w, h)], fdf));
-			if (y != h - 1)
-				draw_line(fdf, project(x, y, z, fdf), project(x, y + 1, coords[ind(x, y + 1, w, h)], fdf));
-			x++;
+			p.z = coords[ind(p.x, p.y, (*fdf).w, (*fdf).h)];
+			if (p.x != (*fdf).w - 1)
+				draw_line(fdf, project(p.x, p.y, p.z, fdf), project(p.x + 1, p.y,
+					coords[ind(p.x + 1, p.y, (*fdf).w, (*fdf).h)], fdf));
+			if (p.y != (*fdf).h - 1)
+				draw_line(fdf, project(p.x, p.y, p.z, fdf), project(p.x, p.y + 1,
+					coords[ind(p.x, p.y + 1, (*fdf).w, (*fdf).h)], fdf));
+			p.x++;
 		}
-		y++;
+		p.y++;
 	}
 	mlx_put_image_to_window(fdf->mlx, fdf->window, fdf->img, 0, 0);
-	return (NULL);
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
