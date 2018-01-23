@@ -168,6 +168,7 @@ int		read_map(char *map_path, t_mlx *fdf)
 	coords = NULL;
 	if ((fd = open(map_path, O_RDONLY)) < 0)
 		return (-1);
+	printf("reading the map\n");
 	while (get_next_line(fd, &line) > 0)
 	{
 		split = ft_strsplit(line, ' ');
@@ -184,12 +185,14 @@ int		read_map(char *map_path, t_mlx *fdf)
 	coord_arr = fdf->coord_arr;
 	fdf->w = fdf->w / fdf->h;
 	printf("w = %d, h = %d\n", fdf->w, fdf->h);
+	printf("converting list to arr\n");
 	while (coords)
 	{
 		*(coord_arr) = coords->c;
 		coords = coords->next;
 		coord_arr++;
 	}
+	printf("converted\n");
 	close(fd);
 	find_range(fdf);
 	return (0);
@@ -294,11 +297,20 @@ void	draw_line(t_mlx *fdf, t_point *p0, t_point *p1) {
     }
 }
 
-t_point	*project(int x, int y, int z, t_mlx *mlx)
+t_eulers	get_eulers(float angle)
 {
-	float		a = mlx->cam->alph;
-	float		b = mlx->cam->beta;
-	float		g = mlx->cam->gamm;
+	t_eulers	eul;
+
+	eul.sin = sin(angle);
+	eul.cos = cos(angle);
+	return (eul);
+}
+
+t_point		*project(int x, int y, int z, t_mlx *mlx)
+{
+	t_eulers	a = get_eulers(mlx->cam->alph);
+	t_eulers	b = get_eulers(mlx->cam->beta);
+	t_eulers	g = get_eulers(mlx->cam->gamm);
 	int			gridw;
 	t_point		*p;
 
@@ -309,11 +321,11 @@ t_point	*project(int x, int y, int z, t_mlx *mlx)
 	if (!(p = new_point(0, 0, 0, 0)))
 		return (NULL);
 	p->rgb = get_grad(z / gridw, *mlx);
-	p->x = cos(b) * cos(g) * x + cos(b) * sin(g) * y + sin(b) * z;
-	p->y = (-sin(a) * sin(b) * cos(g) - cos(a) * sin(g)) * x +
-		(cos(a) * cos(g) - sin(a) * sin(b) * sin(g)) * y + sin(a) * cos(b) * z;
-	p->z = (-sin(b) * cos(a) * cos(g) + sin(a) * sin(g)) * x + (-sin(b) *
-		cos(a) * sin(g) - sin(a) * cos(g)) * y + cos(a) * cos(b) * z;
+	p->x = b.cos * g.cos * x + b.cos * g.sin * y + b.sin * z;
+	p->y = (-a.sin * b.sin * g.cos - a.cos * g.sin) * x +
+		(a.cos * g.cos - a.sin * b.sin * g.sin) * y + a.sin * b.cos * z;
+	p->z = (-b.sin * a.cos * g.cos + a.sin * g.sin) * x + (-b.sin *
+		a.cos * g.sin - a.sin * g.cos) * y + a.cos * b.cos * z;
 	p->x += mlx->cam->xoff;
 	p->y += mlx->cam->yoff;
 	return (p);

@@ -37,6 +37,12 @@ typedef	struct	s_coords
 	struct s_coords		*next;
 }				t_coords;
 
+typedef struct	s_eulers
+{
+	float	sin;
+	float	cos;
+}				t_eulers;
+
 typedef struct	s_point
 {
 	int			x;
