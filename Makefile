@@ -3,12 +3,19 @@ SRC=main.c
 OBJ=$(SRC:.c=.o)
 NAME=fdf
 FLAGS=-Wall -Wextra -Werror
-MLXFLAGS=-lmlx -framework OpenGL -framework AppKit
+OS_NAME:= $(shell uname -s)
+MLXFLAGS=-lmlx
 LIBFLAGS=-lft -L../libft
 MATH=-lm
 DEPS=fdf.h
 
 .PHONY: all debug clean fclean re
+
+ifeq ($(OS_NAME), Linux)
+MLXFLAGS += -lXext -lX11
+else
+MLXFLAGS += -framework OpenGL -framework AppKit
+endif
 
 all: $(NAME)
 
