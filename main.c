@@ -124,6 +124,8 @@ void		find_range(t_mlx *mlx)
 	}
 	mlx->min_depth = min;
 	mlx->max_depth = max;
+	mlx->cam->zoom = MIN(mlx->cam->zoom, ((HEIGHT / (max - min)) + 1));
+//	mlx->cam->yoff = mlx->cam->zoom *
 }
 
 t_coords	*new_coord(char *line)
@@ -176,8 +178,9 @@ int		read_map(char *map_path, t_mlx *fdf)
 	coord_arr = fdf->coord_arr;
 	printf("w = %d, h = %d\n", fdf->w, fdf->h);
 	fdf->w = fdf->w / fdf->h;
-	fdf->cam->zoom = ((HEIGHT / fdf->h + WIDTH / fdf->w) /4) + 1;
-	fdf->cam->yoff = +(fdf->w * fdf->cam->zoom /2);
+	fdf->cam->zoom = ((HEIGHT / fdf->h + WIDTH / fdf->w) / 4) + 1;
+	fdf->cam->xoff = -(fdf->w * fdf->cam->zoom / 4);
+	fdf->cam->yoff = (fdf->h * fdf->cam->zoom) / 3;
 	while (*head)
 	{
 		*(coord_arr) = (*head)->c;
@@ -200,8 +203,8 @@ int		mouse_pressed(int button, int mouseX, int mouseY, void *param)
 		return (1);
 	else if (button == LMB)
 	{
-		fdf->cam->xoff = mouseX - WIDTH/2;
-		fdf->cam->yoff = mouseY - HEIGHT/2;
+		fdf->cam->xoff = mouseX - WIDTH / 2;
+		fdf->cam->yoff = mouseY - HEIGHT / 2;
 	}
 	else if (button == MWD)
 		fdf->cam->zoom--;
