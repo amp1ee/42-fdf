@@ -35,13 +35,13 @@ int		key_handler(int keycode, void *param)
 	else if (keycode == KB_S)
 		p->cam->gamm += rad(2);
 	else if (keycode == KP_4)
-		p->cam->xoff -= 10;
-	else if (keycode == KP_6)
 		p->cam->xoff += 10;
+	else if (keycode == KP_6)
+		p->cam->xoff -= 10;
 	else if (keycode == KP_8)
-		p->cam->yoff -= 10;
-	else if (keycode == KP_2)
 		p->cam->yoff += 10;
+	else if (keycode == KP_2)
+		p->cam->yoff -= 10;
 	else if (keycode == KB_i)
 	{
 		p->cam->yoff -= (p->w * p->cam->zoom /2) * ((p->cam->isom) ? 1 : -1);
@@ -289,7 +289,7 @@ int		get_grad(int z, t_mlx m)
 	int			rgb;
 
 	rgb = get_color(0xFFFFFF, 0xFF0000, find_perc(z,
-				m.min_depth, m.max_depth));
+				m.min_depth, m.max_depth / m.cam->zdiv));
 	return (rgb);
 }
 
