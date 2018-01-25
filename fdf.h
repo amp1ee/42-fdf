@@ -9,7 +9,7 @@
 #include "../libft/libft.h"
 #include <fcntl.h>
 
-#define 	WIDTH						800
+#define 	WIDTH						1000
 #define 	HEIGHT						600
 
 #ifdef		__APPLE__
