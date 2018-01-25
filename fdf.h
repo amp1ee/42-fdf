@@ -9,8 +9,8 @@
 #include "../libft/libft.h"
 #include <fcntl.h>
 
-#define 	WIDTH						1366
-#define 	HEIGHT						768
+#define 	WIDTH						800
+#define 	HEIGHT						600
 
 #ifdef		__APPLE__
 	#include "keyb_mac.h"
@@ -19,9 +19,10 @@
 #endif
 
 #define		LMB							1
-#define		RMB							2
 #define		MWD							5
 #define		MWU							4
+
+#define		INIT_ERR_MSG				"FATAL ERROR: couldn't initialize t_mlx struct"
 
 #define		PI							3.14159265359
 
@@ -54,14 +55,17 @@ typedef struct	s_color
 
 typedef struct	s_cam
 {
-	t_point		*pos;
-	t_point		*vpoint;
 	short		zoom;
+	char		isom;
+
 	int			xoff;
 	int			yoff;
+
 	float		alph;
 	float		beta;
 	float		gamm;
+
+	short		zdiv;
 }				t_cam;
 
 typedef struct	s_mlx
@@ -79,6 +83,7 @@ typedef struct	s_mlx
 	t_cam		*cam;
 	int			min_depth;
 	int			max_depth;
+
 }				t_mlx;
 
 void	draw(t_mlx *mlx_p);

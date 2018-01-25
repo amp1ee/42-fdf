@@ -19,7 +19,6 @@ int		key_handler(int keycode, void *param)
 	{
 		mlx_destroy_window(p->mlx, p->window);
 		ft_memdel((void **)&p);
-		p = NULL;
 		exit(0);
 		return (0);
 	}
@@ -35,10 +34,6 @@ int		key_handler(int keycode, void *param)
 		p->cam->gamm -= rad(2);
 	else if (keycode == KB_S)
 		p->cam->gamm += rad(2);
-	else if (keycode == KB_X)
-		p->cam->zoom++;
-	else if (keycode == KB_Z)
-		p->cam->zoom--;
 	else if (keycode == KP_4)
 		p->cam->xoff -= 10;
 	else if (keycode == KP_6)
@@ -49,16 +44,18 @@ int		key_handler(int keycode, void *param)
 		p->cam->yoff += 10;
 	else if (keycode == KB_i)
 	{
-		p->cam->alph = 0;
+		p->cam->yoff -= (p->w * p->cam->zoom /2) * ((p->cam->isom) ? 1 : -1);
+		p->cam->alph = p->cam->isom ? 0 : rad(-35.264);
 		p->cam->beta = 0;
-		p->cam->gamm = 0;
+		p->cam->gamm = p->cam->isom ? 0 : rad(45);
+		p->cam->isom = !p->cam->isom;
 	}	
-/*	else if (keycode == KP_Add)
-		hc += 0.100000;
+	else if (keycode == KP_Add)
+		p->cam->zdiv++;
 	else if (keycode == KP_Subtract)
-		hc -= 0.100000;
-	if (hc == 0)
-		hc = 0.100000;*/
+		p->cam->zdiv--;
+	if (p->cam->zdiv == 0)
+		p->cam->zdiv = 1;
 	if (p->cam->zoom == 0)
 		p->cam->zoom = 1;
 	draw(p);
@@ -80,29 +77,25 @@ t_point	*new_point(int x, int y, int z, int rgb)
 
 t_mlx	*init_fdf(void)
 {
-	void		*mlx;
-	void		*window;
 	t_mlx		*fdf;
 
 	if (!(fdf = (t_mlx *)malloc(sizeof(t_mlx))))
 		return (NULL);
-	mlx = mlx_init();
-	window = mlx_new_window(mlx, WIDTH, HEIGHT, "Fils de fer");
-	fdf->mlx = mlx;
-	fdf->window = window;
-	fdf->img = mlx_new_image(mlx, WIDTH, HEIGHT);
-	fdf->pxl = mlx_get_data_addr(fdf->img, &(fdf->bpp), &(fdf->s_line), &(fdf->ed));
+	if (!(fdf->mlx = mlx_init()) || !(fdf->window = mlx_new_window(fdf->mlx,
+		WIDTH, HEIGHT, "FdF")) || !(fdf->cam = malloc(sizeof(t_cam))) ||
+	!(fdf->img = mlx_new_image(fdf->mlx, WIDTH, HEIGHT)) || !(fdf->pxl =
+		mlx_get_data_addr(fdf->img, &(fdf->bpp), &(fdf->s_line), &(fdf->ed))))
+		return (NULL);
 	fdf->w = 0;
 	fdf->h = 0;
-	if (!(fdf->cam = (t_cam *)malloc(sizeof(t_cam))))
-		return (NULL);
-	fdf->cam->alph = rad(-35.264);
+	fdf->cam->alph = 0;
 	fdf->cam->beta = 0;
-	fdf->cam->gamm = rad(45);
-	fdf->cam->pos = new_point(0, 0, 0, 0);
+	fdf->cam->gamm = 0;
 	fdf->cam->zoom = 30;
-	fdf->cam->xoff = WIDTH /3;
-	fdf->cam->yoff = 3 * HEIGHT /4;
+	fdf->cam->xoff = 0;
+	fdf->cam->yoff = 0;
+	fdf->cam->isom = 0;
+	fdf->cam->zdiv = 1;
 	return (fdf);
 }
 
@@ -138,7 +131,8 @@ t_coords	*new_coord(char *line)
 {
 	t_coords	*new;
 
-	new = (t_coords *)malloc(sizeof(t_coords));
+	if (!(new = (t_coords *)malloc(sizeof(t_coords))))
+		return (NULL);
 	new->c = ft_atoi(line);
 	new->next = NULL;
 	return (new);
@@ -155,6 +149,7 @@ void		push_coord(t_coords **head, t_coords *new)
 int		read_map(char *map_path, t_mlx *fdf)
 {
 	int			fd;
+	int			rv;
 	char		*line;
 	char		**split;
 	t_coords	*coords;
@@ -164,8 +159,8 @@ int		read_map(char *map_path, t_mlx *fdf)
 	coords = NULL;
 	head = &coords;
 	if ((fd = open(map_path, O_RDONLY)) < 0)
-		return (-1);
-	while (get_next_line(fd, &line) > 0)
+		return (0);
+	while ((rv = get_next_line(fd, &line)) > 0)
 	{
 		split = ft_strsplit(line, ' ');
 		ft_strdel(&line);
@@ -177,10 +172,11 @@ int		read_map(char *map_path, t_mlx *fdf)
 		}
 		fdf->h += 1;
 	}
-	fdf->coord_arr = (int *)malloc(sizeof(int) * fdf->w);
+	if (rv == -1 || !(fdf->coord_arr = (int *)malloc(sizeof(int) * fdf->w)))
+		return (0);
 	coord_arr = fdf->coord_arr;
-	fdf->w = fdf->w / fdf->h;
 	printf("w = %d, h = %d\n", fdf->w, fdf->h);
+	fdf->w = fdf->w / fdf->h;
 	while (*head)
 	{
 		*(coord_arr) = (*head)->c;
@@ -189,28 +185,32 @@ int		read_map(char *map_path, t_mlx *fdf)
 	}
 	close(fd);
 	find_range(fdf);
-	return (0);
+	printf("min_depth: %d, max_depth: %d\n", fdf->min_depth, fdf->max_depth);
+	return (1);
 }
 
-int		mouse_handler(int button, int mouseX, int mouseY, void *param)
+int		mouse_pressed(int button, int mouseX, int mouseY, void *param)
 {
-	t_mlx				*mlx;
+	t_mlx				*fdf;
 
-	mlx = (t_mlx *)param;
+	fdf = (t_mlx *)param;
+	(void)mouseX;
 	if (mouseY < 0)
 		return (1);
 	else if (button == LMB)
 	{
-		mlx->cam->xoff = mouseX;
-		mlx->cam->yoff = mouseY;
+		fdf->cam->xoff = mouseX - WIDTH/2;
+		fdf->cam->yoff = mouseY - HEIGHT/2;
 	}
 	else if (button == MWD)
-		mlx->cam->zoom--;
+		fdf->cam->zoom--;
 	else if (button == MWU)
-		mlx->cam->zoom++;
-	if (mlx->cam->zoom == 0)
-		mlx->cam->zoom = 1;
-	draw(mlx);
+	{
+		fdf->cam->zoom++;
+	}
+	if (fdf->cam->zoom == 0)
+		fdf->cam->zoom = 1;
+	draw(fdf);
 	return (0);
 }
 
@@ -219,12 +219,22 @@ int		main(int ac, char **av)
 	t_mlx		*fdf;
 
 	fdf = init_fdf();
-	if (ac == 2)
-		read_map(av[1], fdf);
-
+	if (fdf != NULL)
+	{
+		if (!read_map(av[ac - 1], fdf))
+		{
+			ft_putendl("read err");
+			return (0);
+		}
+	}
+	else if (fdf == NULL)
+	{
+		ft_putendl(INIT_ERR_MSG);
+		return (1);
+	}
 	draw(fdf);
+	mlx_hook(fdf->window, 4, (1L<<2), mouse_pressed, fdf);
 	mlx_hook(fdf->window, 2, 5, key_handler, fdf);
-	mlx_mouse_hook(fdf->window, mouse_handler, fdf);
 	mlx_loop(fdf->mlx);
 	return (0);
 }
@@ -245,7 +255,6 @@ void	clear_image(void *img, int bpp)
 {
 	ft_bzero(img, WIDTH * HEIGHT * bpp);
 }
-
 
 double	find_perc(double cur, double start, double end)
 {
@@ -279,7 +288,7 @@ int		get_grad(int z, t_mlx m)
 {
 	int			rgb;
 
-	rgb = get_color(0x009BDF, 0xFF0000, find_perc(z,
+	rgb = get_color(0xFFFFFF, 0xFF0000, find_perc(z,
 				m.min_depth, m.max_depth));
 	return (rgb);
 }
@@ -334,7 +343,7 @@ t_point		*project(int x, int y, int z, t_mlx *mlx)
 	gridw = mlx->cam->zoom;
 	x *= gridw;
 	y *= gridw;
-	z *= gridw;
+	z *= gridw / mlx->cam->zdiv;
 	if (!(p = new_point(0, 0, 0, 0)))
 		return (NULL);
 	p->rgb = get_grad(z / gridw, *mlx);
@@ -343,8 +352,8 @@ t_point		*project(int x, int y, int z, t_mlx *mlx)
 		(a.cos * g.cos - a.sin * b.sin * g.sin) * y + a.sin * b.cos * z;
 	p->z = (-b.sin * a.cos * g.cos + a.sin * g.sin) * x + (-b.sin *
 		a.cos * g.sin - a.sin * g.cos) * y + a.cos * b.cos * z;
-	p->x += mlx->cam->xoff;
-	p->y += mlx->cam->yoff;
+	p->x += (WIDTH - mlx->cam->zoom * mlx->w)/2 + mlx->cam->xoff;
+	p->y += (HEIGHT - mlx->cam->zoom * mlx->h)/2 + mlx->cam->yoff;
 	return (p);
 }
 
