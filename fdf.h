@@ -25,6 +25,7 @@
 #define		INIT_ERR_MSG				"FATAL ERROR: couldn't initialize t_mlx struct"
 
 #define		PI							3.14159265359
+#define		MIN(x, y)					x < y ? x : y
 
 typedef	struct	s_coords
 {

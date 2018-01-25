@@ -88,13 +88,12 @@ t_mlx	*init_fdf(void)
 		return (NULL);
 	fdf->w = 0;
 	fdf->h = 0;
-	fdf->cam->alph = 0;
+	fdf->cam->alph = rad(-45);
 	fdf->cam->beta = 0;
-	fdf->cam->gamm = 0;
-	fdf->cam->zoom = 30;
+	fdf->cam->gamm = rad(35.6);
 	fdf->cam->xoff = 0;
-	fdf->cam->yoff = 0;
-	fdf->cam->isom = 0;
+
+	fdf->cam->isom = 1;
 	fdf->cam->zdiv = 1;
 	return (fdf);
 }
@@ -177,6 +176,8 @@ int		read_map(char *map_path, t_mlx *fdf)
 	coord_arr = fdf->coord_arr;
 	printf("w = %d, h = %d\n", fdf->w, fdf->h);
 	fdf->w = fdf->w / fdf->h;
+	fdf->cam->zoom = ((HEIGHT / fdf->h + WIDTH / fdf->w) /4) + 1;
+	fdf->cam->yoff = +(fdf->w * fdf->cam->zoom /2);
 	while (*head)
 	{
 		*(coord_arr) = (*head)->c;
@@ -343,7 +344,8 @@ t_point		*project(int x, int y, int z, t_mlx *mlx)
 	gridw = mlx->cam->zoom;
 	x *= gridw;
 	y *= gridw;
-	z *= gridw / mlx->cam->zdiv;
+	z *= gridw;
+	z /= mlx->cam->zdiv;
 	if (!(p = new_point(0, 0, 0, 0)))
 		return (NULL);
 	p->rgb = get_grad(z / gridw, *mlx);

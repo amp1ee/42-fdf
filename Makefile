@@ -32,6 +32,7 @@ $(LIBFT):
 debug:
 	gcc -ggdb3 $(FLAGS) -c $(SRC) -o $(OBJ)
 	gcc $(FLAGS) $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
+
 clean:
 	rm -f $(OBJ)
 
