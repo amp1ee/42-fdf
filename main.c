@@ -125,7 +125,7 @@ void		find_range(t_mlx *mlx)
 	mlx->min_depth = min;
 	mlx->max_depth = max;
 	mlx->cam->zoom = MIN(mlx->cam->zoom, ((HEIGHT / (max - min)) + 1));
-//	mlx->cam->yoff = mlx->cam->zoom *
+//	mlx->cam->yoff = mlx->cam->zoom * //TODO
 }
 
 t_coords	*new_coord(char *line)
@@ -176,8 +176,8 @@ int		read_map(char *map_path, t_mlx *fdf)
 	if (rv == -1 || !(fdf->coord_arr = (int *)malloc(sizeof(int) * fdf->w)))
 		return (0);
 	coord_arr = fdf->coord_arr;
-	printf("w = %d, h = %d\n", fdf->w, fdf->h);
 	fdf->w = fdf->w / fdf->h;
+	printf("w = %d, h = %d\n", fdf->w, fdf->h);
 	fdf->cam->zoom = ((HEIGHT / fdf->h + WIDTH / fdf->w) / 4) + 1;
 	fdf->cam->xoff = -(fdf->w * fdf->cam->zoom / 4);
 	fdf->cam->yoff = (fdf->h * fdf->cam->zoom) / 3;
@@ -268,13 +268,15 @@ double	find_perc(double cur, double start, double end)
 		return (1.0);
 	return ((cur - start) / (end - start));
 }
-int		add_perc(int first, int second, double p)
+
+int			interp_i(int first, int second, double p)
 {
 	if (first == second)
 		return (first);
-	return ((int)((double)first + (second - first) * p));
+	return ((int)((1 - p) * first + p * second));
 }
-int		get_color(int c1, int c2, double p)
+
+int			get_color(int c1, int c2, double p)
 {
 	int r;
 	int g;
@@ -282,52 +284,68 @@ int		get_color(int c1, int c2, double p)
 
 	if (c1 == c2)
 		return (c1);
-	r = add_perc((c1 >> 16) & 0xFF, (c2 >> 16) & 0xFF, p);
-	g = add_perc((c1 >> 8) & 0xFF, (c2 >> 8) & 0xFF, p);
-	b = add_perc(c1 & 0xFF, c2 & 0xFF, p);
+	r = interp_i((c1 >> 16) & 0xFF, (c2 >> 16) & 0xFF, p);
+	g = interp_i((c1 >> 8) & 0xFF, (c2 >> 8) & 0xFF, p);
+	b = interp_i(c1 & 0xFF, c2 & 0xFF, p);
 	return (r << 16 | g << 8 | b);
 }
 
-int		get_grad(int z, t_mlx m)
+t_point		assign_point(int x, int y)
+{
+	t_point		p;
+
+	p.x = x;
+	p.y = y;
+	return (p);
+}
+
+int			get_grad(int z, t_mlx m)
 {
 	int			rgb;
+	t_point		color[5];
+	int			i;
 
-	rgb = get_color(0xFFFFFF, 0xFF0000, find_perc(z,
+	color[0] = assign_point(0xdce35b, 0x45b649);
+	color[1] = assign_point(0xee0979, 0xff6a00);
+	color[2] = assign_point(0xff00cc, 0xff6a00);
+	color[3] = assign_point(0xffd89b, 0x19547b);
+	color[4] = assign_point(0x22c1c3, 0xfdbb2d);
+	i = round(find_perc(z, m.min_depth, m.max_depth) * 4);
+	rgb = get_color(color[i].x, color[i].y, find_perc(z,
 				m.min_depth, m.max_depth / m.cam->zdiv));
 	return (rgb);
 }
 
-void	draw_line(t_mlx *fdf, t_point *p0, t_point *p1) {
-    const int 	deltaX = abs(p1->x - p0->x);
-    const int 	deltaY = abs(p1->y - p0->y);
-    const int 	signX = p0->x < p1->x ? 1 : -1;
-    const int 	signY = p0->y < p1->y ? 1 : -1;
-    int 		error = deltaX - deltaY;
-    double	perc;
-   	t_point		p = *p0;
+void		draw_line(t_mlx *fdf, t_point *p0, t_point *p1)
+{
+	t_point		delta;
+	t_point		sign;
+	int			error[2];
+	t_point		p;
 
-    while(p0->x != p1->x || p0->y != p1->y) 
+	delta = assign_point(abs(p1->x - p0->x), abs(p1->y - p0->y));
+	sign = assign_point(p0->x < p1->x ? 1 : -1, p0->y < p1->y ? 1 : -1);
+	error[0] = delta.x - delta.y;
+	p = *p0;
+	while(p0->x != p1->x || p0->y != p1->y)
 	{
-		perc = (deltaX > deltaY ?
-			find_perc((int)p0->x, (int)p.x, (int)p1->x)
-			: find_perc((int)p0->y, (int)p.y, (int)p1->y));
-		put_pxl(fdf, p0, get_color(p0->rgb,
-				p1->rgb, perc));
-		const int error2 = error * 2;
-		if (error2 > -deltaY) 
-        {
-            error -= deltaY;
-            p0->x += signX;
-        }
-        if (error2 < deltaX)
-        {
-            error += deltaX;
-            p0->y += signY;
-        }
-    }
+		put_pxl(fdf, p0, get_color(p0->rgb, p1->rgb, (delta.x > delta.y ?
+			find_perc(p0->x, p.x, p1->x) : find_perc(p0->y, p.y, p1->y))));
+		error[1] = error[0] * 2;
+		if (error[1] > -delta.y)
+		{
+			error[0] -= delta.y;
+			p0->x += sign.x;
+		}
+		if (error[1] < delta.x)
+		{
+			error[0] += delta.x;
+			p0->y += sign.y;
+		}
+	}
 }
 
-t_eulers	get_eulers(float angle)
+static inline t_eulers	get_eulers(float angle)
 {
 	t_eulers	eul;
 
