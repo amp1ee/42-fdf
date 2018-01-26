@@ -9,8 +9,8 @@
 #include "../libft/libft.h"
 #include <fcntl.h>
 
-#define 	WIDTH						1000
-#define 	HEIGHT						600
+#define 	WIDTH						1366
+#define 	HEIGHT						768
 
 #ifdef		__APPLE__
 	#include "keyb_mac.h"

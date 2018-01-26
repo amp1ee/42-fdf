@@ -23,17 +23,17 @@ int		key_handler(int keycode, void *param)
 		return (0);
 	}
 	else if (keycode == KB_Up)
-		p->cam->alph -= rad(2);
-	else if (keycode == KB_Down)
 		p->cam->alph += rad(2);
+	else if (keycode == KB_Down)
+		p->cam->alph -= rad(2);
 	else if (keycode == KB_Left)
-		p->cam->beta -= rad(2);
-	else if (keycode == KB_Right)
-		p->cam->beta += rad(2);
-	else if (keycode == KB_W)
-		p->cam->gamm -= rad(2);
-	else if (keycode == KB_S)
 		p->cam->gamm += rad(2);
+	else if (keycode == KB_Right)
+		p->cam->gamm -= rad(2);
+	else if (keycode == KB_W)
+		p->cam->beta -= rad(2);
+	else if (keycode == KB_S)
+		p->cam->beta += rad(2);
 	else if (keycode == KP_4)
 		p->cam->xoff += 10;
 	else if (keycode == KP_6)
@@ -260,7 +260,7 @@ void	clear_image(void *img, int bpp)
 	ft_bzero(img, WIDTH * HEIGHT * bpp);
 }
 
-double	find_perc(double cur, double start, double end)
+double	find_perc(double start, double end, double cur)
 {
 	if (cur == start)
 		return (0.0);
@@ -310,9 +310,9 @@ int			get_grad(int z, t_mlx m)
 	color[2] = assign_point(0xff00cc, 0xff6a00);
 	color[3] = assign_point(0xffd89b, 0x19547b);
 	color[4] = assign_point(0x22c1c3, 0xfdbb2d);
-	i = round(find_perc(z, m.min_depth, m.max_depth) * 4);
-	rgb = get_color(color[i].x, color[i].y, find_perc(z,
-				m.min_depth, m.max_depth / m.cam->zdiv));
+	i = round(find_perc(m.min_depth, m.max_depth, z) * 4);
+	rgb = get_color(color[i].x, color[i].y, find_perc(m.min_depth,
+		(m.max_depth / m.cam->zdiv), z));
 	return (rgb);
 }
 
@@ -330,7 +330,7 @@ void		draw_line(t_mlx *fdf, t_point *p0, t_point *p1)
 	while(p0->x != p1->x || p0->y != p1->y)
 	{
 		put_pxl(fdf, p0, get_color(p0->rgb, p1->rgb, (delta.x > delta.y ?
-			find_perc(p0->x, p.x, p1->x) : find_perc(p0->y, p.y, p1->y))));
+			find_perc(p.x, p1->x, p0->x) : find_perc(p.y, p1->y, p0->y))));
 		error[1] = error[0] * 2;
 		if (error[1] > -delta.y)
 		{
@@ -375,8 +375,8 @@ t_point		*project(int x, int y, int z, t_mlx *mlx)
 		(a.cos * g.cos - a.sin * b.sin * g.sin) * y + a.sin * b.cos * z;
 	p->z = (-b.sin * a.cos * g.cos + a.sin * g.sin) * x + (-b.sin *
 		a.cos * g.sin - a.sin * g.cos) * y + a.cos * b.cos * z;
-	p->x += (WIDTH - mlx->cam->zoom * mlx->w)/2 + mlx->cam->xoff;
-	p->y += (HEIGHT - mlx->cam->zoom * mlx->h)/2 + mlx->cam->yoff;
+	p->x += (WIDTH - mlx->cam->zoom * mlx->w) / 2 + mlx->cam->xoff;
+	p->y += (HEIGHT - mlx->cam->zoom * mlx->h) / 2 + mlx->cam->yoff;
 	return (p);
 }
 
