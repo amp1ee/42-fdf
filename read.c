@@ -1,8 +1,7 @@
 #include "fdf.h"
-#include <fcntl.h>
 #include <stdlib.h>
 
-static inline t_coords	*new_coord(char *num)
+static inline t_coords	*new_coord(char *str)
 {
 	t_coords	*new;
 
@@ -11,7 +10,7 @@ static inline t_coords	*new_coord(char *num)
 		terminate(MALLOC_ERR);
 		return (NULL);
 	}
-	new->c = ft_atoi(num);
+	new->c = ft_atoi(str);
 	new->next = NULL;
 	return (new);
 }
@@ -52,18 +51,38 @@ static void				find_range(t_map *map)
 	map->max_depth = max;
 }
 
+void					del_list(t_coords **list)
+{
+	t_coords	*tmp;
+
+	if (!list)
+		return ;
+	while (*list)
+	{
+		tmp = *list;
+		*list = (*list)->next;
+		free(tmp);
+		tmp = NULL;
+	}
+
+}
+
 static t_map			*conv_to_arr(t_map *map, t_coords *coords)
 {
 	int			*coord_arr;
+	t_coords	*coords_head;
+	int			i;
 
+	i = 0;
+	coords_head = coords;
 	coord_arr = map->coord_arr;
 	map->w = map->w / map->h;
 	while (coords)
 	{
-		*(coord_arr) = coords->c;
-		(coords) = coords->next;
-		coord_arr++;
+		coord_arr[i++] = coords->c;
+		coords = coords->next;
 	}
+	del_list(&coords_head);
 	find_range(map);
 	return (map);
 }
@@ -87,11 +106,11 @@ t_map					*read_map(int fd, char **line, t_coords **coords)
 		{
 			push_coord(coords, new_coord(*split));
 			map->w += 1;
-			split++;
+			ft_strdel(&(*(split++)));
 		}
 		map->h += 1;
+		ft_memdel((void **)(&split - sizeof(split) * (map->w / map->h)));
 	}
-	close(fd);
 	if (rv == -1 || !(map->coord_arr = (int *)malloc(sizeof(int) * map->w)))
 		return (NULL);
 	return (conv_to_arr(map, *coords));

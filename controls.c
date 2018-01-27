@@ -71,8 +71,7 @@ int				key_pressed(int key, void *param)
 	p = (t_mlx *)param;
 	if (key == KB_Esc)
 	{
-		mlx_destroy_window(p->mlx, p->window);
-		ft_memdel((void **)&p);
+		cleanall(p);
 		exit(0);
 		return (0);
 	}

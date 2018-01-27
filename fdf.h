@@ -98,5 +98,5 @@ t_eulers				get_eulers(float angle);
 t_point					assign_point(int x, int y);
 int						ind(int x, int y, int w, int h);
 int						terminate(char *err);
-
+void					*cleanall(t_mlx *fdf);
 #endif
