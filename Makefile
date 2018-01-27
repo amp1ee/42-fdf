@@ -1,5 +1,5 @@
 CC=gcc
-SRC=main.c
+SRC=main.c controls.c read.c draw.c
 OBJ=$(SRC:.c=.o)
 NAME=fdf
 FLAGS=-Wall -Wextra -Werror
@@ -21,17 +21,17 @@ endif
 all: $(NAME)
 
 $(OBJ): $(SRC) $(DEPS)
-	gcc $(FLAGS) -c $(SRC) -o $(OBJ)
+	gcc $(FLAGS) -c $(SRC)
 
 $(NAME): $(OBJ) $(LIBFT)
-	gcc $(FLAGS) $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
+	gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
 
 $(LIBFT):
 	make -C ../libft/
 
 debug:
 	gcc -ggdb3 $(FLAGS) -c $(SRC) -o $(OBJ)
-	gcc $(FLAGS) $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
+	gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
 
 clean:
 	rm -f $(OBJ)
