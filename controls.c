@@ -1,8 +1,9 @@
 #include "fdf.h"
+#include <mlx.h>
 
-int		mouse_pressed(int button, int mousex, int mousey, void *param)
+int				mouse_pressed(int button, int mousex, int mousey, void *param)
 {
-	t_mlx				*fdf;
+	t_mlx			*fdf;
 
 	fdf = (t_mlx *)param;
 	(void)mousex;
@@ -25,55 +26,67 @@ int		mouse_pressed(int button, int mousex, int mousey, void *param)
 	return (0);
 }
 
-int		key_handler(int keycode, void *param)
+static void		switch_view(t_mlx *p)
+{
+	p->cam->yoff -= (p->map->w * p->cam->zoom / 2) *
+		((p->cam->isom) ? 1 : -1);
+	p->cam->alph = p->cam->isom ? 0 : rad(-35.264);
+	p->cam->beta = 0;
+	p->cam->gamm = p->cam->isom ? 0 : rad(45);
+	p->cam->isom = !p->cam->isom;
+}
+
+static void		move(int key, t_mlx *p)
+{
+	if (key == KP_4)
+		p->cam->xoff += 10;
+	else if (key == KP_6)
+		p->cam->xoff -= 10;
+	else if (key == KP_8)
+		p->cam->yoff += 10;
+	else
+		p->cam->yoff -= 10;
+}
+
+static void		rotate(int key, t_mlx *p)
+{
+	if (key == KB_Up)
+		p->cam->alph += rad(2);
+	else if (key == KB_Down)
+		p->cam->alph -= rad(2);
+	else if (key == KB_Left)
+		p->cam->gamm += rad(2);
+	else if (key == KB_Right)
+		p->cam->gamm -= rad(2);
+	else if (key == KB_W)
+		p->cam->beta -= rad(2);
+	else
+		p->cam->beta += rad(2);
+}
+
+int				key_pressed(int key, void *param)
 {
 	t_mlx	*p;
 
 	p = (t_mlx *)param;
-	if (keycode == KB_Esc)
+	if (key == KB_Esc)
 	{
 		mlx_destroy_window(p->mlx, p->window);
 		ft_memdel((void **)&p);
 		exit(0);
 		return (0);
 	}
-	else if (keycode == KB_Up)
-		p->cam->alph += rad(2);
-	else if (keycode == KB_Down)
-		p->cam->alph -= rad(2);
-	else if (keycode == KB_Left)
-		p->cam->gamm += rad(2);
-	else if (keycode == KB_Right)
-		p->cam->gamm -= rad(2);
-	else if (keycode == KB_W)
-		p->cam->beta -= rad(2);
-	else if (keycode == KB_S)
-		p->cam->beta += rad(2);
-	else if (keycode == KP_4)
-		p->cam->xoff += 10;
-	else if (keycode == KP_6)
-		p->cam->xoff -= 10;
-	else if (keycode == KP_8)
-		p->cam->yoff += 10;
-	else if (keycode == KP_2)
-		p->cam->yoff -= 10;
-	else if (keycode == KB_i)
-	{
-		p->cam->yoff -= (p->map->w * p->cam->zoom / 2) *
-			((p->cam->isom) ? 1 : -1);
-		p->cam->alph = p->cam->isom ? 0 : rad(-35.264);
-		p->cam->beta = 0;
-		p->cam->gamm = p->cam->isom ? 0 : rad(45);
-		p->cam->isom = !p->cam->isom;
-	}
-	else if (keycode == KP_Add)
+	else if (key == KB_Up || key == KB_Down || key == KB_Left ||
+		key == KB_Right || key == KB_W || key == KB_S)
+		rotate(key, p);
+	else if (key == KP_4 || key == KP_6 || key == KP_8 || key == KP_2)
+		move(key, p);
+	else if (key == KB_i)
+		switch_view(p);
+	else if (key == KP_Add)
 		p->cam->zdiv++;
-	else if (keycode == KP_Subtract)
+	else if (key == KP_Subtract && p->cam->zdiv != 1)
 		p->cam->zdiv--;
-	if (p->cam->zdiv == 0)
-		p->cam->zdiv = 1;
-	if (p->cam->zoom == 0)
-		p->cam->zoom = 1;
 	draw(p);
 	return (0);
 }

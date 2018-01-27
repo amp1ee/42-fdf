@@ -1,5 +1,5 @@
 CC=gcc
-SRC=main.c controls.c read.c draw.c
+SRC=main.c controls.c read.c draw.c color.c util.c
 OBJ=$(SRC:.c=.o)
 NAME=fdf
 FLAGS=-Wall -Wextra -Werror

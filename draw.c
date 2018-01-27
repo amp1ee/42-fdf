@@ -1,6 +1,8 @@
 #include "fdf.h"
+#include <mlx.h>
+#include <stdlib.h>
 
-void		put_pxl(t_mlx *fdf, t_point *p, unsigned int color)
+static void		put_pxl(t_mlx *fdf, t_point *p, unsigned int color)
 {
 	int		i;
 
@@ -12,7 +14,7 @@ void		put_pxl(t_mlx *fdf, t_point *p, unsigned int color)
 	fdf->pxl[++i] = color >> 16;
 }
 
-void		draw_ln(t_mlx *fdf, t_point *p0, t_point *p1)
+static void		draw_ln(t_mlx *fdf, t_point *p0, t_point *p1)
 {
 	t_point		delta;
 	t_point		sign;
@@ -41,25 +43,25 @@ void		draw_ln(t_mlx *fdf, t_point *p0, t_point *p1)
 	}
 }
 
-t_point		*project(int x, int y, int z, t_mlx *mlx)
+static t_point	*project(int x, int y, int z, t_mlx *mlx)
 {
 	t_eulers	a;
 	t_eulers	b;
 	t_eulers	g;
-	int			gridw;
 	t_point		*p;
 
 	a = get_eulers(mlx->cam->alph);
 	b = get_eulers(mlx->cam->beta);
 	g = get_eulers(mlx->cam->gamm);
-	gridw = mlx->cam->zoom;
-	x *= gridw;
-	y *= gridw;
-	z *= gridw;
-	z /= mlx->cam->zdiv;
+	x *= mlx->cam->zoom;
+	y *= mlx->cam->zoom;
+	z *= (mlx->cam->zoom / mlx->cam->zdiv);
 	if (!(p = (t_point *)malloc(sizeof(t_point))))
+	{
+		terminate(MALLOC_ERR);
 		return (NULL);
-	p->rgb = get_color(z / gridw, *mlx);
+	}
+	p->rgb = get_color(z / mlx->cam->zoom, *mlx);
 	p->x = b.cos * g.cos * x + b.cos * g.sin * y + b.sin * z;
 	p->y = (-a.sin * b.sin * g.cos - a.cos * g.sin) * x +
 		(a.cos * g.cos - a.sin * b.sin * g.sin) * y + a.sin * b.cos * z;
@@ -70,17 +72,12 @@ t_point		*project(int x, int y, int z, t_mlx *mlx)
 	return (p);
 }
 
-void		clear_image(void *img, int bpp)
-{
-	ft_bzero(img, WIDTH * HEIGHT * bpp);
-}
-
-void		draw(t_mlx *fdf)
+void			draw(t_mlx *fdf)
 {
 	t_point		p;
 	int			*coords;
 
-	clear_image(fdf->pxl, fdf->bpp / 8);
+	ft_bzero(fdf->pxl, WIDTH * HEIGHT * (fdf->bpp / 8));
 	coords = fdf->map->coord_arr;
 	p.y = 0;
 	while (p.y < (*fdf).map->h)

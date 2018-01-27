@@ -1,11 +1,16 @@
 #include "fdf.h"
+#include <fcntl.h>
+#include <stdlib.h>
 
 static inline t_coords	*new_coord(char *num)
 {
 	t_coords	*new;
 
 	if (!(new = (t_coords *)malloc(sizeof(t_coords))))
+	{
+		terminate(MALLOC_ERR);
 		return (NULL);
+	}
 	new->c = ft_atoi(num);
 	new->next = NULL;
 	return (new);
@@ -47,7 +52,7 @@ static void				find_range(t_map *map)
 	map->max_depth = max;
 }
 
-t_map					*conv_to_arr(t_map *map, t_coords *coords)
+static t_map			*conv_to_arr(t_map *map, t_coords *coords)
 {
 	int			*coord_arr;
 
