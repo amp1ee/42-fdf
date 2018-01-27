@@ -12,7 +12,7 @@ void	*cleanall(t_mlx *fdf)
 		ft_memdel((void **)&(fdf->map));
 	}
 	mlx_destroy_window(fdf->mlx, fdf->window);
-	mlx_destroy_image(fdf->mlx, fdf->img);
+//	mlx_destroy_image(fdf->mlx, fdf->img);
 	ft_bzero(fdf->pxl, WIDTH * HEIGHT * (fdf->bpp / 8));
 	free(fdf);
 	fdf = NULL;
