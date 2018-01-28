@@ -13,9 +13,9 @@ void	*cleanall(t_mlx *fdf)
 	}
 	mlx_destroy_window(fdf->mlx, fdf->window);
 //	mlx_destroy_image(fdf->mlx, fdf->img);
+//	ft_memdel(&fdf->img);
 	ft_bzero(fdf->pxl, WIDTH * HEIGHT * (fdf->bpp / 8));
-	free(fdf);
-	fdf = NULL;
+	ft_memdel((void **)&fdf);
 	return (NULL);
 }
 
@@ -36,12 +36,13 @@ t_mlx	*init_fdf(t_map *map)
 	fdf->cam->alph = rad(-45);
 	fdf->cam->beta = 0;
 	fdf->cam->gamm = rad(35.264);
-	fdf->cam->zoom = MIN(HEIGHT / (map->max_depth - map->min_depth + 1),
+	fdf->cam->zoom = MIN(HEIGHT / abs(map->max_depth - map->min_depth + 1),
 		((HEIGHT / map->h + WIDTH / map->w) / 4) + 1);
+	fdf->cam->zoom <= 0 ? fdf->cam->zoom = 1 : 0;
 	fdf->cam->xoff = -(map->w * fdf->cam->zoom / 4);
 	fdf->cam->yoff = (map->h * fdf->cam->zoom) / 3;
 	fdf->cam->isom = 1;
-	fdf->cam->zdiv = 1;
+	fdf->cam->zdiv = 1.0;
 	return (fdf);
 }
 
@@ -49,14 +50,12 @@ int		main(int ac, char **av)
 {
 	t_mlx		*fdf;
 	t_map		*map;
-	char		*line;
-	t_coords	*c;
 	int			fd;
 
 	if (ac == 2)
 	{
 		if ((fd = open(av[1], O_RDONLY)) < 0 ||
-			!(map = read_map(fd, &line, &c)))
+			!(map = read_map(fd)))
 			return (terminate(READ_ERR_MSG));
 		else
 			close(fd);
@@ -66,6 +65,9 @@ int		main(int ac, char **av)
 	else
 		return (terminate(USG_ERR_MSG));
 	draw(fdf);
+	sleep(3);
+	cleanall(fdf);
+	exit(0);
 	mlx_hook(fdf->window, 4, (1L << 2), mouse_pressed, fdf);
 	mlx_hook(fdf->window, 2, 5, key_pressed, fdf);
 	mlx_loop(fdf->mlx);

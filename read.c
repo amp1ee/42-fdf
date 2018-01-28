@@ -1,15 +1,27 @@
 #include "fdf.h"
 #include <stdlib.h>
 
+void					del_list(t_coords **list)
+{
+	t_coords	*tmp;
+
+	if (!list)
+		return ;
+	while (*list)
+	{
+		tmp = *list;
+		*list = (*list)->next;
+		free(tmp);
+		tmp = NULL;
+	}
+}
+
 static inline t_coords	*new_coord(char *str)
 {
 	t_coords	*new;
 
 	if (!(new = (t_coords *)malloc(sizeof(t_coords))))
-	{
-		terminate(MALLOC_ERR);
 		return (NULL);
-	}
 	new->c = ft_atoi(str);
 	new->next = NULL;
 	return (new);
@@ -17,8 +29,11 @@ static inline t_coords	*new_coord(char *str)
 
 static inline int		push_coord(t_coords **head, t_coords *new)
 {
-	if (!new || !head)
-		return (0);
+	if (!new)
+	{
+		del_list(head);
+		return (terminate(MALLOC_ERR));
+	}
 	new->next = *head;
 	*head = new;
 	return (1);
@@ -39,7 +54,7 @@ static void				find_range(t_map *map)
 		p.x = 0;
 		while (p.x < map->w)
 		{
-			z = map->coord_arr[(int)p.y * map->w + (int)p.x];
+			z = map->coord_arr[p.y * map->w + p.x];
 			if (z < min)
 				min = z;
 			if (z > max)
@@ -52,42 +67,27 @@ static void				find_range(t_map *map)
 	map->max_depth = max;
 }
 
-void					del_list(t_coords **list)
-{
-	t_coords	*tmp;
-
-	if (!list)
-		return ;
-	while (*list)
-	{
-		tmp = *list;
-		*list = (*list)->next;
-		free(tmp);
-		tmp = NULL;
-	}
-}
-
-static t_map			*conv_to_arr(t_map *map, t_coords *coords)
+int						conv_to_arr(t_map *map, t_coords *coords)
 {
 	int			*coord_arr;
 	t_coords	**coords_head;
 	int			i;
 
+	if (!(map->coord_arr = (int *)malloc(sizeof(int) * map->w * map->h)))
+		return (terminate(MALLOC_ERR));
 	i = 0;
 	coords_head = &coords;
 	coord_arr = map->coord_arr;
-	map->w = map->w / map->h;
 	while (coords)
 	{
 		coord_arr[i++] = coords->c;
 		coords = coords->next;
 	}
 	del_list(coords_head);
-	find_range(map);
-	return (map);
+	return (1);
 }
 
-t_map					*alloc_map(void)
+t_map					*init_map(void)
 {
 	t_map		*map;
 
@@ -98,30 +98,48 @@ t_map					*alloc_map(void)
 	return (map);
 }
 
-t_map					*read_map(int fd, char **line, t_coords **coords)
+int						read_split(char **split, t_map *map, t_coords **coords)
+{
+	char	**split_h;	
+
+	split_h = split;
+	while (*split != NULL)
+	{
+		if (!(push_coord(coords, new_coord(*split))))
+			return (0);
+		map->w += 1;
+		ft_strdel(&(*(split++)));
+	}
+	map->h += 1;
+	ft_memdel((void **)&split_h);
+	return (1);
+}
+
+t_map					*read_map(int fd)
 {
 	int			rv;
 	char		**split;
 	t_map		*map;
+	char		*line;
+	t_coords	*coords;
 
-	if (!(map = alloc_map()))
-		return (NULL);
-	*coords = NULL;
-	while ((rv = get_next_line(fd, line)) > 0)
+	coords = NULL;
+	if (!(map = init_map()))
 	{
-		split = ft_strsplit(*line, ' ');
-		ft_strdel(line);
-		while (*split != NULL)
-		{
-			if (!(push_coord(coords, new_coord(*split))))
-				return (NULL);
-			map->w += 1;
-			ft_strdel(&(*(split++)));
-		}
-		map->h += 1;
-//		ft_memdel((void **)(&split - sizeof(split) * (map->w / map->h - 1)));
-	}
-	if (rv == -1 || !(map->coord_arr = (int *)malloc(sizeof(int) * map->w)))
+		terminate(MALLOC_ERR);
 		return (NULL);
-	return (conv_to_arr(map, *coords));
+	}
+	while ((rv = get_next_line(fd, &line)) > 0)
+	{
+		split = ft_strsplit(line, ' ');
+		ft_strdel(&line);
+		if (!(read_split(split, map, &coords)))
+			return (NULL);
+	}
+	if (rv == -1)
+		return (NULL);
+	map->w = map->w / map->h;
+	conv_to_arr(map, coords);
+	find_range(map);
+	return (map);
 }

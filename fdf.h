@@ -61,7 +61,7 @@ typedef struct			s_cam
 	float				alph;
 	float				beta;
 	float				gamm;
-	short				zdiv;
+	float				zdiv;
 }						t_cam;
 
 typedef struct			s_map
@@ -86,7 +86,7 @@ typedef struct			s_mlx
 	t_map				*map;
 }						t_mlx;
 
-t_map					*read_map(int fd, char **line, t_coords **coords);
+t_map					*read_map(int fd);
 void					draw(t_mlx *fdf);
 double					find_perc(double start, double end, double cur);
 int						interp_color(int c1, int c2, double p);

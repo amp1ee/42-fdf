@@ -81,9 +81,9 @@ int				key_pressed(int key, void *param)
 	else if (key == KB_i)
 		switch_view(p);
 	else if (key == KP_Add)
-		p->cam->zdiv++;
-	else if (key == KP_Subtract && p->cam->zdiv != 1)
-		p->cam->zdiv--;
+		p->cam->zdiv += 0.333;
+	else if (key == KP_Subtract && p->cam->zdiv >= 1.3)
+		p->cam->zdiv -= 0.333;
 	draw(p);
 	return (0);
 }
