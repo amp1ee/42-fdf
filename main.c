@@ -36,7 +36,7 @@ t_mlx	*init_fdf(t_map *map)
 	fdf->cam->alph = rad(-45);
 	fdf->cam->beta = 0;
 	fdf->cam->gamm = rad(35.264);
-	fdf->cam->zoom = MIN(HEIGHT / (map->max_depth - map->min_depth) + 1,
+	fdf->cam->zoom = MIN(HEIGHT / (map->max_depth - map->min_depth + 1),
 		((HEIGHT / map->h + WIDTH / map->w) / 4) + 1);
 	fdf->cam->xoff = -(map->w * fdf->cam->zoom / 4);
 	fdf->cam->yoff = (map->h * fdf->cam->zoom) / 3;

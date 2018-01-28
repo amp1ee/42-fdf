@@ -1,6 +1,7 @@
 #ifndef FDF_H
 # define FDF_H
 
+#include <stdio.h> //--------------------DELETE
 # include "../libft/libft.h"
 
 # define WIDTH 1280

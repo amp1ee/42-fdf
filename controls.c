@@ -17,9 +17,7 @@ int				mouse_pressed(int button, int mousex, int mousey, void *param)
 	else if (button == MWD)
 		fdf->cam->zoom--;
 	else if (button == MWU)
-	{
 		fdf->cam->zoom++;
-	}
 	if (fdf->cam->zoom == 0)
 		fdf->cam->zoom = 1;
 	draw(fdf);

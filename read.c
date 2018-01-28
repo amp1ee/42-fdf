@@ -119,7 +119,7 @@ t_map					*read_map(int fd, char **line, t_coords **coords)
 			ft_strdel(&(*(split++)));
 		}
 		map->h += 1;
-		ft_memdel((void **)(&split - sizeof(split) * (map->w / map->h)));
+//		ft_memdel((void **)(&split - sizeof(split) * (map->w / map->h - 1)));
 	}
 	if (rv == -1 || !(map->coord_arr = (int *)malloc(sizeof(int) * map->w)))
 		return (NULL);

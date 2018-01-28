@@ -29,8 +29,8 @@ $(NAME): $(OBJ) $(LIBFT)
 $(LIBFT):
 	make -C ../libft/
 
-debug:
-	gcc -ggdb3 $(FLAGS) -c $(SRC) -o $(OBJ)
+debug: $(SRC) $(DEPS)
+	gcc -ggdb3 $(FLAGS) -c $(SRC)
 	gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
 
 clean:
