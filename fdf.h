@@ -20,7 +20,6 @@
 # define INIT_ERR_MSG "ERROR: Couldn't initialize t_mlx struct"
 # define READ_ERR_MSG "ERROR: Couldn't read the specified map file"
 # define USG_ERR_MSG "Usage: ./fdf <map.fdf>"
-# define MALLOC_ERR "ERROR: Couldn't allocate memory"
 
 # define PI 3.14159265359
 # define MIN(x, y) x < y ? x : y

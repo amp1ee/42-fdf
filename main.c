@@ -65,9 +65,6 @@ int		main(int ac, char **av)
 	else
 		return (terminate(USG_ERR_MSG));
 	draw(fdf);
-	sleep(3);
-	cleanall(fdf);
-	exit(0);
 	mlx_hook(fdf->window, 4, (1L << 2), mouse_pressed, fdf);
 	mlx_hook(fdf->window, 2, 5, key_pressed, fdf);
 	mlx_loop(fdf->mlx);

@@ -32,7 +32,7 @@ static inline int		push_coord(t_coords **head, t_coords *new)
 	if (!new)
 	{
 		del_list(head);
-		return (terminate(MALLOC_ERR));
+		return (0);
 	}
 	new->next = *head;
 	*head = new;
@@ -72,71 +72,98 @@ int						conv_to_arr(t_map *map, t_coords *coords)
 	int			*coord_arr;
 	t_coords	**coords_head;
 	int			i;
+	int			success;
 
+	success = 1;
 	if (!(map->coord_arr = (int *)malloc(sizeof(int) * map->w * map->h)))
-		return (terminate(MALLOC_ERR));
+		success = 0;
 	i = 0;
 	coords_head = &coords;
 	coord_arr = map->coord_arr;
-	while (coords)
+	while (coords && success)
 	{
-		coord_arr[i++] = coords->c;
+		coord_arr[i++] = (*coords).c;
 		coords = coords->next;
 	}
 	del_list(coords_head);
-	return (1);
-}
-
-t_map					*init_map(void)
-{
-	t_map		*map;
-
-	if (!(map = malloc(sizeof(t_map))))
-		return (NULL);
-	map->w = 0;
-	map->h = 0;
-	return (map);
+	return (success);
 }
 
 int						read_split(char **split, t_map *map, t_coords **coords)
 {
-	char	**split_h;	
+	char	**split_h;
+	int		success;
 
 	split_h = split;
-	while (*split != NULL)
+	success = 1;
+	while (*split != NULL && success)
 	{
 		if (!(push_coord(coords, new_coord(*split))))
-			return (0);
+			success = 0;
 		map->w += 1;
-		ft_strdel(&(*(split++)));
+		ft_strdel(&(*split++));
 	}
 	map->h += 1;
 	ft_memdel((void **)&split_h);
-	return (1);
+	return (success);
+}
+
+int						countwords(char *line, char delim)
+{
+	int		i;
+	int		count;
+
+	i = 0;
+	count = 0;
+	while (line[i])
+	{
+		while (line[i] && line[i] == delim)
+			i++;
+		if (line[i] && line[i] != delim)
+		{
+			while (line[i] && line[i] != delim)
+				i++;
+			count++;
+		}
+	}
+	return (count);
+}
+
+int						gnl_cycle(t_map *map, int fd, t_coords **coords)
+{
+	int			rv;
+	int			n;
+	char		**split;
+	char		*line;
+	int			success;
+
+	n = -1;
+	success = 1;
+	while ((rv = get_next_line(fd, &line)) > 0 && success)
+	{
+		if (n == -1)
+			n = countwords(line, ' ');
+		split = ft_strsplit(line, ' ');
+		if (n != countwords(line, ' ') || !(read_split(split, map, coords)))
+			success = 0;
+		ft_strdel(&line);
+	}
+	if (rv == -1)
+		return (0);
+	return (success);
 }
 
 t_map					*read_map(int fd)
 {
-	int			rv;
-	char		**split;
 	t_map		*map;
-	char		*line;
 	t_coords	*coords;
 
 	coords = NULL;
-	if (!(map = init_map()))
-	{
-		terminate(MALLOC_ERR);
+	if (!(map = malloc(sizeof(t_map))))
 		return (NULL);
-	}
-	while ((rv = get_next_line(fd, &line)) > 0)
-	{
-		split = ft_strsplit(line, ' ');
-		ft_strdel(&line);
-		if (!(read_split(split, map, &coords)))
-			return (NULL);
-	}
-	if (rv == -1)
+	map->w = 0;
+	map->h = 0;
+	if (!gnl_cycle(map, fd, &coords))
 		return (NULL);
 	map->w = map->w / map->h;
 	conv_to_arr(map, coords);

@@ -54,15 +54,15 @@ static t_point	project(int x, int y, int z, t_mlx *mlx)
 	g = get_eulers(mlx->cam->gamm);
 	x *= mlx->cam->zoom;
 	y *= mlx->cam->zoom;
+	p.rgb = get_color(z, *mlx);
 	z *= (mlx->cam->zoom / mlx->cam->zdiv);
-	p.rgb = get_color(z / mlx->cam->zoom, *mlx);
 	p.x = b.cos * g.cos * x + b.cos * g.sin * y + b.sin * z;
 	p.y = (-a.sin * b.sin * g.cos - a.cos * g.sin) * x +
 		(a.cos * g.cos - a.sin * b.sin * g.sin) * y + a.sin * b.cos * z;
 	p.z = (-b.sin * a.cos * g.cos + a.sin * g.sin) * x + (-b.sin *
 		a.cos * g.sin - a.sin * g.cos) * y + a.cos * b.cos * z;
 	p.x += (WIDTH - mlx->cam->zoom * mlx->map->w) / 2 + mlx->cam->xoff;
-	p.y += (HEIGHT - mlx->cam->zoom * mlx->map->h) / 2 + mlx->cam->yoff;
+	p.y += (HEIGHT /*- mlx->cam->zoom * mlx->map->h*/) / 2 + mlx->cam->yoff;
 	return (p);
 }
 
