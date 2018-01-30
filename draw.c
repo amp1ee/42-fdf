@@ -66,6 +66,20 @@ static t_point	project(int x, int y, int z, t_mlx *mlx)
 	return (p);
 }
 
+void			print_controls(t_mlx *fdf)
+{
+	int		y;
+
+	y = 15;
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "CONTROLS:");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Mouse wheel Up/Down - Zoom In/Out");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Left mouse button - Place at cursor position");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Up/Down, Left/Right, W/S - Rotate");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Numpad -/+ - Flatten");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Numpad 2/4/6/8 - Move");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "I - Switch Top/Isometric View");
+}
+
 void			draw(t_mlx *fdf)
 {
 	t_point		p;
@@ -91,4 +105,5 @@ void			draw(t_mlx *fdf)
 		p.y++;
 	}
 	mlx_put_image_to_window(fdf->mlx, fdf->window, fdf->img, 0, 0);
+	print_controls(fdf);
 }
