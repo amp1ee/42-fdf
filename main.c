@@ -21,6 +21,7 @@ void	*cleanall(t_mlx *fdf)
 	if (fdf->map)
 	{
 		ft_memdel((void **)&(fdf->map->coord_arr));
+		ft_memdel((void **)&(fdf->map->color_arr));
 		ft_memdel((void **)&(fdf->map));
 	}
 	mlx_destroy_window(fdf->mlx, fdf->window);

@@ -58,13 +58,6 @@ typedef struct			s_point
 	int					rgb;
 }						t_point;
 
-typedef struct			s_color
-{
-	char				r;
-	char				g;
-	char				b;
-}						t_color;
-
 typedef struct			s_cam
 {
 	short				zoom;

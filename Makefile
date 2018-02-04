@@ -31,7 +31,7 @@ $(LIBFT):
 	make -C ../libft/
 
 debug: $(SRC) $(DEPS)
-	gcc -ggdb3 $(FLAGS) -c $(SRC)
+	gcc -ggdb3 $(FLAGS) -c $(SRC) -I$(INCL_LIB)
 	gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
 
 clean:

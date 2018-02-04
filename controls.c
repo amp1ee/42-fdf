@@ -60,13 +60,13 @@ static void		move(int key, t_mlx *p)
 
 static void		rotate(int key, t_mlx *p)
 {
-	if (key == KB_Up)
+	if (key == KB_UP)
 		p->cam->alph += rad(2);
-	else if (key == KB_Down)
+	else if (key == KB_DOWN)
 		p->cam->alph -= rad(2);
-	else if (key == KB_Left)
+	else if (key == KB_LEFT)
 		p->cam->gamm += rad(2);
-	else if (key == KB_Right)
+	else if (key == KB_RIGHT)
 		p->cam->gamm -= rad(2);
 	else if (key == KB_W)
 		p->cam->beta -= rad(2);
@@ -79,24 +79,24 @@ int				key_pressed(int key, void *param)
 	t_mlx	*p;
 
 	p = (t_mlx *)param;
-	if (key == KB_Esc)
+	if (key == KB_ESC)
 	{
 		cleanall(p);
 		exit(0);
 		return (0);
 	}
-	else if (key == KB_Up || key == KB_Down || key == KB_Left ||
-		key == KB_Right || key == KB_W || key == KB_S)
+	else if (key == KB_UP || key == KB_DOWN || key == KB_LEFT ||
+		key == KB_RIGHT || key == KB_W || key == KB_S)
 		rotate(key, p);
 	else if (key == KP_4 || key == KP_6 || key == KP_8 || key == KP_2)
 		move(key, p);
-	else if (key == KB_i)
+	else if (key == KB_I)
 		switch_view(p);
-	else if (key == KP_Subtract)
+	else if (key == KP_SUBTRACT)
 		p->cam->zdiv += 0.333;
-	else if (key == KP_Add && p->cam->zdiv >= 1.3)
+	else if (key == KP_ADD && p->cam->zdiv >= 1.3)
 		p->cam->zdiv -= 0.333;
-	else if (key == KB_u)
+	else if (key == KB_U)
 		p->map->cm += 5;
 	draw(p, (*(*p).map).w, (*(*p).map).h);
 	return (0);

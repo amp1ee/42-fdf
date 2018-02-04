@@ -47,7 +47,7 @@ int						conv_to_arr(t_map *map, t_coords *coords)
 {
 	int			*coord_arr;
 	int			*color_arr;
-	t_coords	**coords_head;
+	t_coords	*coords_head;
 	int			i;
 	int			success;
 
@@ -56,7 +56,7 @@ int						conv_to_arr(t_map *map, t_coords *coords)
 		!(map->color_arr = (int *)malloc(sizeof(int) * map->w * map->h)))
 		success = 0;
 	i = 0;
-	coords_head = &coords;
+	coords_head = coords;
 	coord_arr = map->coord_arr;
 	color_arr = map->color_arr;
 	while (coords && success)
@@ -65,7 +65,7 @@ int						conv_to_arr(t_map *map, t_coords *coords)
 		coord_arr[i++] = (*coords).c;
 		coords = coords->next;
 	}
-	del_list(coords_head);
+	del_list(&coords_head);
 	return (success);
 }
 

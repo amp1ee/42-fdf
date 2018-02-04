@@ -36,8 +36,7 @@ void			del_list(t_coords **list)
 	{
 		tmp = *list;
 		*list = (*list)->next;
-		free(tmp);
-		tmp = NULL;
+		ft_memdel((void **)&tmp);
 	}
 }
 
