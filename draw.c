@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   draw.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oahieiev <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/02/04 16:41:46 by oahieiev          #+#    #+#             */
+/*   Updated: 2018/02/04 16:41:48 by oahieiev         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "fdf.h"
 #include <mlx.h>
 
@@ -72,13 +84,19 @@ void			print_controls(t_mlx *fdf)
 	int		y;
 
 	y = 15;
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "CONTROLS:");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Mouse wheel Up/Down - Zoom In/Out");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Left mouse button - Place at cursor position");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Up/Down, Left/Right, W/S - Rotate");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Numpad -/+ - Flatten");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "Numpad 2/4/6/8 - Move");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "I - Switch Top/Isometric View");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR, "CONTROLS:");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		"Mouse wheel Up/Down - Zoom In/Out");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		"Left mouse button - Place at cursor position");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		"Up/Down, Left/Right, W/S - Rotate");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		"Numpad -/+ - Flatten");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		"Numpad 2/4/6/8 - Move");
+	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		"I - Switch Top/Isometric View");
 }
 
 void			draw(t_mlx *fdf, int w, int h)

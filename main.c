@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   main.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oahieiev <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/02/04 16:41:57 by oahieiev          #+#    #+#             */
+/*   Updated: 2018/02/04 16:41:59 by oahieiev         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "fdf.h"
 #include <fcntl.h>
 #include <mlx.h>
@@ -12,8 +24,7 @@ void	*cleanall(t_mlx *fdf)
 		ft_memdel((void **)&(fdf->map));
 	}
 	mlx_destroy_window(fdf->mlx, fdf->window);
-//	mlx_destroy_image(fdf->mlx, fdf->img);
-	ft_memdel(&fdf->img);
+	mlx_destroy_image(fdf->mlx, fdf->img);
 	ft_bzero(fdf->pxl, WIDTH * HEIGHT * (fdf->bpp / 8));
 	ft_memdel((void **)&fdf);
 	return (NULL);

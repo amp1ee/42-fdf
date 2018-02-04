@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   controls.c                                         :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oahieiev <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/02/04 16:41:29 by oahieiev          #+#    #+#             */
+/*   Updated: 2018/02/04 16:41:31 by oahieiev         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "fdf.h"
 #include <mlx.h>
 
@@ -80,9 +92,9 @@ int				key_pressed(int key, void *param)
 		move(key, p);
 	else if (key == KB_i)
 		switch_view(p);
-	else if (key == KP_Add)
+	else if (key == KP_Subtract)
 		p->cam->zdiv += 0.333;
-	else if (key == KP_Subtract && p->cam->zdiv >= 1.3)
+	else if (key == KP_Add && p->cam->zdiv >= 1.3)
 		p->cam->zdiv -= 0.333;
 	else if (key == KB_u)
 		p->map->cm += 5;

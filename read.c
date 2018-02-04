@@ -1,46 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   read.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: oahieiev <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2018/02/04 16:42:06 by oahieiev          #+#    #+#             */
+/*   Updated: 2018/02/04 16:42:08 by oahieiev         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "fdf.h"
+#include "readutils.h"
 #include <stdlib.h>
-
-void					del_list(t_coords **list)
-{
-	t_coords	*tmp;
-
-	if (!list)
-		return ;
-	while (*list)
-	{
-		tmp = *list;
-		*list = (*list)->next;
-		free(tmp);
-		tmp = NULL;
-	}
-}
-
-static inline t_coords	*new_coord(char *str)
-{
-	t_coords	*new;
-
-	if (!(new = (t_coords *)malloc(sizeof(t_coords))))
-		return (NULL);
-	new->c = ft_atoi(str);
-	while (*str && *str != 'x')
-		str++;
-	new->rgb = (*str) ? ft_atoi_base(str++, 16) : -1;
-	new->next = NULL;
-	return (new);
-}
-
-static inline int		push_coord(t_coords **head, t_coords *new)
-{
-	if (!new)
-	{
-		del_list(head);
-		return (0);
-	}
-	new->next = *head;
-	*head = new;
-	return (1);
-}
 
 static void				find_range(t_map *map)
 {
@@ -97,7 +69,7 @@ int						conv_to_arr(t_map *map, t_coords *coords)
 	return (success);
 }
 
-int						read_split(char **split, t_map *map, t_coords **coords)
+static int				read_split(char **split, t_map *map, t_coords **coords)
 {
 	char	**split_h;
 	int		success;
@@ -116,28 +88,7 @@ int						read_split(char **split, t_map *map, t_coords **coords)
 	return (success);
 }
 
-int						countwords(char *line, char delim)
-{
-	int		i;
-	int		count;
-
-	i = 0;
-	count = 0;
-	while (line[i])
-	{
-		while (line[i] && line[i] == delim)
-			i++;
-		if (line[i] && line[i] != delim)
-		{
-			while (line[i] && line[i] != delim)
-				i++;
-			count++;
-		}
-	}
-	return (count);
-}
-
-int						gnl_cycle(t_map *map, int fd, t_coords **coords)
+static int				gnl_cycle(t_map *map, int fd, t_coords **coords)
 {
 	int			rv;
 	int			n;
