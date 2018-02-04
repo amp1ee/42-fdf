@@ -3,6 +3,8 @@
 
 double		find_perc(double start, double end, double cur)
 {
+	if (start == end)
+		return (1.0);
 	if (cur == start)
 		return (0.0);
 	if (cur == end)
@@ -31,19 +33,29 @@ int			interp_color(int c1, int c2, double p)
 	return (r << 16 | g << 8 | b);
 }
 
-int			get_color(int z, t_mlx m)
+int			get_color(int z, t_map map)
 {
 	int			rgb;
-	t_point		color[5];
+	t_point		color[10];
 	int			i;
+	float		lmin;
+	float		lmax;
 
-	color[0] = assign_point(0x3d3d45, 0x1f3023);
-	color[1] = assign_point(0x1f3023, 0x007565);
-	color[2] = assign_point(0x007565, 0x99c6c4);
-	color[3] = assign_point(0x99c6c4, 0xefe8cf);
-	color[4] = assign_point(0xefe8cf, 0xffffff);
-	i = round(find_perc(m.map->min_depth, m.map->max_depth, z) * 4);
-	rgb = interp_color(color[i].x, color[i].y, find_perc(m.map->min_depth,
-		m.map->max_depth, z));
+	color[0] = assign_point(0xC02425, 0xCA4729);
+	color[1] = assign_point(0xCA4729, 0xD1612A);
+	color[2] = assign_point(0xD1612A, 0xDB832E);
+	color[3] = assign_point(0xDB832E, 0xE7AB32);
+	color[4] = assign_point(0xE7AB32, 0xF0CB35);
+	color[5] = assign_point(0x00421D, 0x33C355);
+	color[6] = assign_point(0x00C355, 0xAA8900);
+	color[7] = assign_point(0xAA8900, 0xAA3500);
+	color[8] = assign_point(0xAA3500, 0xAA3E0B);
+	color[9] = assign_point(0xAA3E0B, 0x6CB5D8);
+	i = floor(find_perc(map.min_z, map.max_z, z) * 5);
+	lmin = map.min_z + (i * 0.200) * (map.rng);
+	lmax = (i == 5) ? map.max_z : map.min_z + (0.2 + i * 0.200) * (map.rng);
+	(i == 5) ? i = 4 : 0;
+	rgb = interp_color(color[i + map.cm % 10].x, color[i + map.cm % 10].y,
+		find_perc(lmin, lmax, z));
 	return (rgb);
 }

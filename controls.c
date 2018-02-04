@@ -20,7 +20,7 @@ int				mouse_pressed(int button, int mousex, int mousey, void *param)
 		fdf->cam->zoom++;
 	if (fdf->cam->zoom == 0)
 		fdf->cam->zoom = 1;
-	draw(fdf);
+	draw(fdf, (*(*fdf).map).w, (*(*fdf).map).h);
 	return (0);
 }
 
@@ -84,6 +84,8 @@ int				key_pressed(int key, void *param)
 		p->cam->zdiv += 0.333;
 	else if (key == KP_Subtract && p->cam->zdiv >= 1.3)
 		p->cam->zdiv -= 0.333;
-	draw(p);
+	else if (key == KB_u)
+		p->map->cm += 5;
+	draw(p, (*(*p).map).w, (*(*p).map).h);
 	return (0);
 }

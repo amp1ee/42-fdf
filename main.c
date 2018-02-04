@@ -13,7 +13,7 @@ void	*cleanall(t_mlx *fdf)
 	}
 	mlx_destroy_window(fdf->mlx, fdf->window);
 //	mlx_destroy_image(fdf->mlx, fdf->img);
-//	ft_memdel(&fdf->img);
+	ft_memdel(&fdf->img);
 	ft_bzero(fdf->pxl, WIDTH * HEIGHT * (fdf->bpp / 8));
 	ft_memdel((void **)&fdf);
 	return (NULL);
@@ -36,7 +36,7 @@ t_mlx	*init_fdf(t_map *map)
 	fdf->cam->alph = rad(-45);
 	fdf->cam->beta = 0;
 	fdf->cam->gamm = rad(35.264);
-	fdf->cam->zoom = MIN(HEIGHT / abs(map->max_depth - map->min_depth + 1),
+	fdf->cam->zoom = MIN(HEIGHT / abs(map->rng + 1),
 		((HEIGHT / map->h + WIDTH / map->w) / 4) + 1);
 	fdf->cam->zoom <= 0 ? fdf->cam->zoom = 1 : 0;
 	fdf->cam->xoff = -(map->w * fdf->cam->zoom / 4);
@@ -64,7 +64,7 @@ int		main(int ac, char **av)
 	}
 	else
 		return (terminate(USG_ERR_MSG));
-	draw(fdf);
+	draw(fdf, (*(*fdf).map).w, (*(*fdf).map).h);
 	mlx_hook(fdf->window, 4, (1L << 2), mouse_pressed, fdf);
 	mlx_hook(fdf->window, 2, 5, key_pressed, fdf);
 	mlx_loop(fdf->mlx);

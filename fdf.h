@@ -21,13 +21,14 @@
 # define READ_ERR_MSG "ERROR: Couldn't read the specified map file"
 # define USG_ERR_MSG "Usage: ./fdf <map.fdf>"
 
-# define TXT_COLOR 0xc6999b
+# define TXT_COLOR 0xCCCCCC
 # define PI 3.14159265359
 # define MIN(x, y) x < y ? x : y
 
 typedef	struct			s_coords
 {
 	int					c;
+	int					rgb;
 	struct s_coords		*next;
 }						t_coords;
 
@@ -69,8 +70,11 @@ typedef struct			s_map
 	int					w;
 	int					h;
 	int					*coord_arr;
-	int					min_depth;
-	int					max_depth;
+	int					*color_arr;
+	int					min_z;
+	int					max_z;
+	int					rng;
+	unsigned char		cm;
 }						t_map;
 
 typedef struct			s_mlx
@@ -87,10 +91,10 @@ typedef struct			s_mlx
 }						t_mlx;
 
 t_map					*read_map(int fd);
-void					draw(t_mlx *fdf);
+void					draw(t_mlx *fdf, int w, int h);
 double					find_perc(double start, double end, double cur);
 int						interp_color(int c1, int c2, double p);
-int						get_color(int z, t_mlx m);
+int						get_color(int z, t_map map);
 int						mouse_pressed(int button, int mousex, int mousey,
 	void *param);
 int						key_pressed(int keycode, void *param);

@@ -49,12 +49,13 @@ static t_point	project(int x, int y, int z, t_mlx *mlx)
 	t_eulers	g;
 	t_point		p;
 
+	p.rgb = mlx->map->color_arr[ind(x, y, mlx->map->w, mlx->map->h)];
+	(p.rgb == -1) ? p.rgb = get_color(z, *(mlx->map)) : 0;
 	a = get_eulers(mlx->cam->alph);
 	b = get_eulers(mlx->cam->beta);
 	g = get_eulers(mlx->cam->gamm);
 	x *= mlx->cam->zoom;
 	y *= mlx->cam->zoom;
-	p.rgb = get_color(z, *mlx);
 	z *= (mlx->cam->zoom / mlx->cam->zdiv);
 	p.x = b.cos * g.cos * x + b.cos * g.sin * y + b.sin * z;
 	p.y = (-a.sin * b.sin * g.cos - a.cos * g.sin) * x +
@@ -62,7 +63,7 @@ static t_point	project(int x, int y, int z, t_mlx *mlx)
 	p.z = (-b.sin * a.cos * g.cos + a.sin * g.sin) * x + (-b.sin *
 		a.cos * g.sin - a.sin * g.cos) * y + a.cos * b.cos * z;
 	p.x += (WIDTH - mlx->cam->zoom * mlx->map->w) / 2 + mlx->cam->xoff;
-	p.y += (HEIGHT /*- mlx->cam->zoom * mlx->map->h*/) / 2 + mlx->cam->yoff;
+	p.y += HEIGHT / 2 + mlx->cam->yoff;
 	return (p);
 }
 
@@ -80,7 +81,7 @@ void			print_controls(t_mlx *fdf)
 	mlx_string_put(fdf->mlx, fdf->window, 15, y += 12, TXT_COLOR, "I - Switch Top/Isometric View");
 }
 
-void			draw(t_mlx *fdf)
+void			draw(t_mlx *fdf, int w, int h)
 {
 	t_point		p;
 	int			*coords;
@@ -88,18 +89,18 @@ void			draw(t_mlx *fdf)
 	ft_bzero(fdf->pxl, WIDTH * HEIGHT * (fdf->bpp / 8));
 	coords = fdf->map->coord_arr;
 	p.y = 0;
-	while (p.y < (*fdf).map->h)
+	while (p.y < h)
 	{
 		p.x = 0;
-		while (p.x < (*fdf).map->w)
+		while (p.x < w)
 		{
-			p.z = coords[ind(p.x, p.y, (*fdf).map->w, (*fdf).map->h)];
-			if (p.x != (*fdf).map->w - 1)
+			p.z = coords[ind(p.x, p.y, w, h)];
+			if (p.x != w - 1)
 				draw_ln(fdf, project(p.x, p.y, p.z, fdf), project(p.x + 1, p.y,
-				coords[ind(p.x + 1, p.y, (*fdf).map->w, (*fdf).map->h)], fdf));
-			if (p.y != (*fdf).map->h - 1)
+				coords[ind(p.x + 1, p.y, w, h)], fdf));
+			if (p.y != h - 1)
 				draw_ln(fdf, project(p.x, p.y, p.z, fdf), project(p.x, p.y + 1,
-				coords[ind(p.x, p.y + 1, (*fdf).map->w, (*fdf).map->h)], fdf));
+				coords[ind(p.x, p.y + 1, w, h)], fdf));
 			p.x++;
 		}
 		p.y++;

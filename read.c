@@ -23,6 +23,9 @@ static inline t_coords	*new_coord(char *str)
 	if (!(new = (t_coords *)malloc(sizeof(t_coords))))
 		return (NULL);
 	new->c = ft_atoi(str);
+	while (*str && *str != 'x')
+		str++;
+	new->rgb = (*str) ? ft_atoi_base(str++, 16) : -1;
 	new->next = NULL;
 	return (new);
 }
@@ -63,25 +66,30 @@ static void				find_range(t_map *map)
 		}
 		p.y++;
 	}
-	map->min_depth = min;
-	map->max_depth = max;
+	map->min_z = min;
+	map->max_z = max;
+	map->rng = max - min;
 }
 
 int						conv_to_arr(t_map *map, t_coords *coords)
 {
 	int			*coord_arr;
+	int			*color_arr;
 	t_coords	**coords_head;
 	int			i;
 	int			success;
 
 	success = 1;
-	if (!(map->coord_arr = (int *)malloc(sizeof(int) * map->w * map->h)))
+	if (!(map->coord_arr = (int *)malloc(sizeof(int) * map->w * map->h)) ||
+		!(map->color_arr = (int *)malloc(sizeof(int) * map->w * map->h)))
 		success = 0;
 	i = 0;
 	coords_head = &coords;
 	coord_arr = map->coord_arr;
+	color_arr = map->color_arr;
 	while (coords && success)
 	{
+		color_arr[i] = (*coords).rgb;
 		coord_arr[i++] = (*coords).c;
 		coords = coords->next;
 	}
@@ -163,6 +171,7 @@ t_map					*read_map(int fd)
 		return (NULL);
 	map->w = 0;
 	map->h = 0;
+	map->cm = 5;
 	if (!gnl_cycle(map, fd, &coords))
 		return (NULL);
 	map->w = map->w / map->h;
