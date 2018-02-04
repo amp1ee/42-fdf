@@ -12,18 +12,25 @@ SRC=ft_memcpy.c ft_putstr.c ft_striteri.c ft_strnstr.c ft_atoi.c ft_lstadd.c \
 	ft_putnbr_fd.c ft_striter.c ft_strnew.c ft_lstfold.c ft_itoa_base.c\
 	get_next_line.c ft_atoi_base.c
 
-.PHONY: all so clean fclean re
-OBJ=$(SRC:.c=.o)
+.PHONY: all clean fclean re
+
+OBJ=$(SRC:%.c=%.o)
+
 $(NAME): $(OBJ)
-	ar rc $(NAME) $(OBJ)
-	ranlib $(NAME)
+	@echo
+	@ar rc $(NAME) $^
+	@ranlib $(NAME)
+	@echo $@ is ready.
+
 %.o: %.c
-	gcc -Wall -Wextra -Werror -o $@ -c $^
+	@printf "Compiling object files...\r"
+	@gcc -Wall -Wextra -Werror -o $@ -c $^
+
 all: $(NAME)
-so: $(NAME)
-	@gcc -o libft.so $(OBJ) -shared
+
 clean:
 	@rm -f $(OBJ)
+
 fclean: clean
 	@rm -f $(NAME) libft.so
 	@rm -f $(NAME)

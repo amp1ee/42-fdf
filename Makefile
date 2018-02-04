@@ -6,7 +6,7 @@ FLAGS		= -Wall -Wextra -Werror
 OS_NAME		= $(shell uname -s)
 MLXFLAGS	= -lmlx
 LIBFLAGS	= -lft -L../libft
-LIBFT		= ../libft/libft.a
+LIBFT		= ./libft/libft.a
 MATH		= -lm
 INCL		= fdf.h readutils.h keyb_{linux, mac}.h
 INCL_LIB	= ./includes/
@@ -28,7 +28,7 @@ $(NAME): $(OBJ) $(LIBFT)
 	gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
 
 $(LIBFT):
-	make -C ../libft/
+	make -C ./libft/
 
 debug: $(SRC) $(DEPS)
 	gcc -ggdb3 $(FLAGS) -c $(SRC) -I$(INCL_LIB)
