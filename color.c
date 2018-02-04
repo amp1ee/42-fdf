@@ -13,7 +13,7 @@
 #include "fdf.h"
 #include <math.h>
 
-double		find_perc(double start, double end, double cur)
+double				find_perc(double start, double end, double cur)
 {
 	if (start == end)
 		return (1.0);
@@ -24,14 +24,14 @@ double		find_perc(double start, double end, double cur)
 	return ((cur - start) / (end - start));
 }
 
-int			interp_i(int first, int second, double p)
+static int			interp_i(int first, int second, double p)
 {
 	if (first == second)
 		return (first);
 	return ((int)((1 - p) * first + p * second));
 }
 
-int			interp_color(int c1, int c2, double p)
+int					interp_color(int c1, int c2, double p)
 {
 	int r;
 	int g;
@@ -45,7 +45,7 @@ int			interp_color(int c1, int c2, double p)
 	return (r << 16 | g << 8 | b);
 }
 
-int			get_color(int z, t_map map)
+int					get_color(int z, t_map map)
 {
 	int			rgb;
 	t_point		color[10];

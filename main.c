@@ -15,7 +15,7 @@
 #include <mlx.h>
 #include <stdlib.h>
 
-void	*cleanall(t_mlx *fdf)
+void			*cleanall(t_mlx *fdf)
 {
 	ft_memdel((void **)&(fdf->cam));
 	if (fdf->map)
@@ -31,7 +31,7 @@ void	*cleanall(t_mlx *fdf)
 	return (NULL);
 }
 
-t_mlx	*init_fdf(t_map *map)
+static t_mlx	*init_fdf(t_map *map)
 {
 	t_mlx		*fdf;
 
@@ -58,7 +58,7 @@ t_mlx	*init_fdf(t_map *map)
 	return (fdf);
 }
 
-int		main(int ac, char **av)
+int				main(int ac, char **av)
 {
 	t_mlx		*fdf;
 	t_map		*map;

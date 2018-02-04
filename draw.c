@@ -79,7 +79,7 @@ static t_point	project(int x, int y, int z, t_mlx *mlx)
 	return (p);
 }
 
-void			print_controls(t_mlx *fdf)
+static void		print_controls(t_mlx *fdf)
 {
 	int		y;
 

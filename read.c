@@ -43,7 +43,7 @@ static void				find_range(t_map *map)
 	map->rng = max - min;
 }
 
-int						conv_to_arr(t_map *map, t_coords *coords)
+static int				conv_to_arr(t_map *map, t_coords *coords)
 {
 	int			*coord_arr;
 	int			*color_arr;
