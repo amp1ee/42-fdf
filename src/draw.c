@@ -11,9 +11,10 @@
 /* ************************************************************************** */
 
 #include "fdf.h"
+#include "util.h"
 #include <mlx.h>
 
-static void		put_pxl(t_mlx *fdf, t_point p, unsigned int color)
+static void		put_pxl(t_fdf *fdf, t_point p, unsigned int color)
 {
 	int		i;
 
@@ -25,7 +26,7 @@ static void		put_pxl(t_mlx *fdf, t_point p, unsigned int color)
 	fdf->pxl[++i] = color >> 16;
 }
 
-static void		draw_ln(t_mlx *fdf, t_point p0, t_point p1)
+static void		draw_ln(t_fdf *fdf, t_point p0, t_point p1)
 {
 	t_point		delta;
 	t_point		sign;
@@ -54,32 +55,32 @@ static void		draw_ln(t_mlx *fdf, t_point p0, t_point p1)
 	}
 }
 
-static t_point	project(int x, int y, int z, t_mlx *mlx)
+static t_point	project(int x, int y, int z, t_fdf *fdf)
 {
 	t_eulers	a;
 	t_eulers	b;
 	t_eulers	g;
 	t_point		p;
 
-	p.rgb = mlx->map->color_arr[ind(x, y, mlx->map->w, mlx->map->h)];
-	(p.rgb == -1) ? p.rgb = get_color(z, *(mlx->map)) : 0;
-	a = get_eulers(mlx->cam->alph);
-	b = get_eulers(mlx->cam->beta);
-	g = get_eulers(mlx->cam->gamm);
-	x *= mlx->cam->zoom;
-	y *= mlx->cam->zoom;
-	z *= (mlx->cam->zoom / mlx->cam->zdiv);
+	p.rgb = fdf->map->color_arr[ind(x, y, fdf->map->w, fdf->map->h)];
+	(p.rgb == -1) ? p.rgb = get_color(z, *(fdf->map)) : 0;
+	a = get_eulers(fdf->cam->alph);
+	b = get_eulers(fdf->cam->beta);
+	g = get_eulers(fdf->cam->gamm);
+	x *= fdf->cam->zoom;
+	y *= fdf->cam->zoom;
+	z *= (fdf->cam->zoom / fdf->cam->zdiv);
 	p.x = b.cos * g.cos * x + b.cos * g.sin * y + b.sin * z;
 	p.y = (-a.sin * b.sin * g.cos - a.cos * g.sin) * x +
 		(a.cos * g.cos - a.sin * b.sin * g.sin) * y + a.sin * b.cos * z;
 	p.z = (-b.sin * a.cos * g.cos + a.sin * g.sin) * x + (-b.sin *
 		a.cos * g.sin - a.sin * g.cos) * y + a.cos * b.cos * z;
-	p.x += (WIDTH - mlx->cam->zoom * mlx->map->w) / 2 + mlx->cam->xoff;
-	p.y += HEIGHT / 2 + mlx->cam->yoff;
+	p.x += (WIDTH - fdf->cam->zoom * fdf->map->w) / 2 + fdf->cam->xoff;
+	p.y += HEIGHT / 2 + fdf->cam->yoff;
 	return (p);
 }
 
-static void		print_controls(t_mlx *fdf)
+static void		print_controls(t_fdf *fdf)
 {
 	int		y;
 
@@ -99,7 +100,7 @@ static void		print_controls(t_mlx *fdf)
 		"I - Switch Top/Isometric View");
 }
 
-void			draw(t_mlx *fdf, int w, int h)
+void			draw(t_fdf *fdf, int w, int h)
 {
 	t_point		p;
 	int			*coords;

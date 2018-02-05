@@ -29,26 +29,13 @@
 # define MWD 5
 # define MWU 4
 
-# define INIT_ERR_MSG "ERROR: Couldn't initialize t_mlx struct"
+# define INIT_ERR_MSG "ERROR: Couldn't initialize t_fdf struct"
 # define READ_ERR_MSG "ERROR: Couldn't read the specified map file"
-# define USG_ERR_MSG "Usage: ./fdf <map.fdf>"
+# define USG_ERR_MSG "Usage: ./fdf MAP_FILE"
 
 # define TXT_COLOR 0xCCCCCC
 # define PI 3.14159265359
 # define MIN(x, y) x < y ? x : y
-
-typedef	struct			s_coords
-{
-	int					c;
-	int					rgb;
-	struct s_coords		*next;
-}						t_coords;
-
-typedef struct			s_eulers
-{
-	float				sin;
-	float				cos;
-}						t_eulers;
 
 typedef struct			s_point
 {
@@ -82,7 +69,7 @@ typedef struct			s_map
 	unsigned char		cm;
 }						t_map;
 
-typedef struct			s_mlx
+typedef struct			s_fdf
 {
 	void				*mlx;
 	void				*window;
@@ -93,10 +80,10 @@ typedef struct			s_mlx
 	int					endian;
 	t_cam				*cam;
 	t_map				*map;
-}						t_mlx;
+}						t_fdf;
 
 t_map					*read_map(int fd);
-void					draw(t_mlx *fdf, int w, int h);
+void					draw(t_fdf *fdf, int w, int h);
 double					find_perc(double start, double end, double cur);
 int						interp_color(int c1, int c2, double p);
 int						get_color(int z, t_map map);
@@ -104,9 +91,8 @@ int						mouse_pressed(int button, int mousex, int mousey,
 	void *param);
 int						key_pressed(int keycode, void *param);
 float					rad(float deg);
-t_eulers				get_eulers(float angle);
 t_point					assign_point(int x, int y);
 int						ind(int x, int y, int w, int h);
 int						terminate(char *err);
-void					*cleanall(t_mlx *fdf);
+void					*cleanall(t_fdf *fdf);
 #endif

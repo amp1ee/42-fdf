@@ -17,21 +17,21 @@ SRC=ft_memcpy.c ft_putstr.c ft_striteri.c ft_strnstr.c ft_atoi.c ft_lstadd.c \
 OBJ=$(SRC:%.c=%.o)
 
 $(NAME): $(OBJ)
-	@echo
-	@ar rc $(NAME) $^
-	@ranlib $(NAME)
-	@echo $@ is ready.
+	@ar rc $@ $^
+	@ranlib $@
+	@printf '\t\t$@ is ready              \n'
 
 %.o: %.c
-	@printf "Compiling object files...\r"
+	@printf '\t\tCompiling $(NAME) sources\r'
 	@gcc -Wall -Wextra -Werror -o $@ -c $^
 
 all: $(NAME)
 
 clean:
 	@rm -f $(OBJ)
+	@printf '\t$(NAME) object files deleted\n'
 
 fclean: clean
-	@rm -f $(NAME) libft.so
 	@rm -f $(NAME)
+	@printf '\t$(NAME) deleted\n'
 re: fclean all

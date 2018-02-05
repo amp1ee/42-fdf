@@ -11,6 +11,7 @@
 /* ************************************************************************** */
 
 #include "fdf.h"
+#include "util.h"
 #include <math.h>
 
 float		rad(float deg)

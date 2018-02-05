@@ -1,43 +1,57 @@
-CC			= gcc
-SRC			= main.c controls.c read.c draw.c color.c util.c readutils.c
-OBJ			= $(SRC:.c=.o)
 NAME		= fdf
+CC			= gcc
+SRCDIR		= ./src/
+OBJDIR		= ./obj/
+HDIR		= ./includes/
+LIBDIR		= ./libft/
+SRC			= $(addprefix $(SRCDIR), \
+				main.c \
+				controls.c \
+				read.c \
+				draw.c \
+				color.c \
+				util.c \
+				readutils.c)
+OBJ			= $(SRC:$(SRCDIR)%.c=$(OBJDIR)%.o)
 FLAGS		= -Wall -Wextra -Werror
-OS_NAME		= $(shell uname -s)
 MLXFLAGS	= -lmlx
-LIBFLAGS	= -lft -L../libft
-LIBFT		= ./libft/libft.a
+LIBFLAGS	= -lft -L$(LIBDIR)
 MATH		= -lm
-INCL		= fdf.h readutils.h keyb_{linux, mac}.h
-INCL_LIB	= ./includes/
+OS_NAME		= $(shell uname -s)
+ifeq ($(OS_NAME), Linux)
+MLXFLAGS 	+= -lXext -lX11
+else
+MLXFLAGS 	+= -framework OpenGL -framework AppKit
+endif
+LIBFT		= $(LIBDIR)libft.a
+INCL		= fdf.h readutils.h util.h keyb_{linux, mac}.h
+FDF_H		= $(HDIR)fdf.h
 
 .PHONY: all debug clean fclean re
 
-ifeq ($(OS_NAME), Linux)
-MLXFLAGS += -lXext -lX11
-else
-MLXFLAGS += -framework OpenGL -framework AppKit
-endif
-
 all: $(NAME)
 
-$(OBJ): $(SRC) $(INCL_LIB)fdf.h
-	gcc $(FLAGS) -c $(SRC) -I$(INCL_LIB)
-
+$(OBJDIR)%.o: $(SRCDIR)%.c $(FDF_H)
+	@mkdir -p $(OBJDIR)
+	@printf '\tCompiling $<\n'
+	@gcc $(FLAGS) -c $< -o $@ -I$(HDIR)
 $(NAME): $(OBJ) $(LIBFT)
-	gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
-
+	@printf '\tLinking\n'
+	@gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
+	@echo 'Done'
 $(LIBFT):
-	make -C ./libft/
+	@printf '\tAssembling libft\n'
+	@make -sC $(LIBDIR)
 
-debug: $(SRC) $(DEPS)
-	gcc -ggdb3 $(FLAGS) -c $(SRC) -I$(INCL_LIB)
-	gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
+debug: $(SRC) $(FDF_H)
+	@gcc -ggdb3 $(FLAGS) -c $(SRC) -I$(HDIR)
+	@gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
 
 clean:
-	rm -f $(OBJ)
-
+	@make -sC $(LIBDIR) clean
+	@rm -rf $(OBJDIR)
+	@printf '\tObject files deleted\n'
 fclean: clean
-	rm -f $(NAME)
-
+	@rm -f $(NAME)
+	@printf '\t$(NAME) deleted\n'
 re: fclean all

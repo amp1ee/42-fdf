@@ -122,7 +122,7 @@ t_map					*read_map(int fd)
 		return (NULL);
 	map->w = 0;
 	map->h = 0;
-	map->cm = 5;
+	map->cm = 0;
 	if (!gnl_cycle(map, fd, &coords))
 		return (NULL);
 	map->w = map->w / map->h;

@@ -15,7 +15,7 @@
 #include <mlx.h>
 #include <stdlib.h>
 
-void			*cleanall(t_mlx *fdf)
+void			*cleanall(t_fdf *fdf)
 {
 	ft_memdel((void **)&(fdf->cam));
 	if (fdf->map)
@@ -25,17 +25,17 @@ void			*cleanall(t_mlx *fdf)
 		ft_memdel((void **)&(fdf->map));
 	}
 	mlx_destroy_window(fdf->mlx, fdf->window);
-	mlx_destroy_image(fdf->mlx, fdf->img);
+	// mlx_destroy_image*(fdf->mlx, fdf->img);
 	ft_bzero(fdf->pxl, WIDTH * HEIGHT * (fdf->bpp / 8));
 	ft_memdel((void **)&fdf);
 	return (NULL);
 }
 
-static t_mlx	*init_fdf(t_map *map)
+static t_fdf	*init_fdf(t_map *map)
 {
-	t_mlx		*fdf;
+	t_fdf		*fdf;
 
-	if (!(fdf = (t_mlx *)malloc(sizeof(t_mlx))))
+	if (!(fdf = (t_fdf *)malloc(sizeof(t_fdf))))
 		return (NULL);
 	if (!(fdf->mlx = mlx_init()) ||
 		!(fdf->window = mlx_new_window(fdf->mlx, WIDTH, HEIGHT, "FdF")) ||
@@ -60,7 +60,7 @@ static t_mlx	*init_fdf(t_map *map)
 
 int				main(int ac, char **av)
 {
-	t_mlx		*fdf;
+	t_fdf		*fdf;
 	t_map		*map;
 	int			fd;
 

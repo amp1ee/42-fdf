@@ -11,6 +11,8 @@
 /* ************************************************************************** */
 
 #include "fdf.h"
+#include "readutils.h"
+#include <stdlib.h>
 
 t_coords		*new_coord(char *str)
 {
