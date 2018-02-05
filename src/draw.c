@@ -84,20 +84,27 @@ static void		print_controls(t_fdf *fdf)
 {
 	int		y;
 
-	y = 15;
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR, "CONTROLS:");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
-		"Mouse wheel Up/Down - Zoom In/Out");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
-		"Left mouse button - Place at cursor position");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
-		"Up/Down, Left/Right, W/S - Rotate");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
-		"Numpad -/+ - Flatten");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
-		"Numpad 2/4/6/8 - Move");
-	mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
-		"I - Switch Top/Isometric View");
+	y = 30;
+	if (fdf->showhelp == 1)
+	{
+		mlx_string_put(fdf->mlx, fdf->window, 15, y, TXT_COLOR,
+			"CONTROLS:");
+		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+			"Mouse wheel Up/Down - Zoom In/Out");
+		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+			"Left mouse button - Place at cursor position");
+		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+			"Up/Down, Left/Right, W/S - Rotate");
+		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+			"Numpad -/+ - Flatten");
+		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+			"Numpad 2/4/6/8 - Move");
+		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+			"I - Switch Top/Isometric View");
+	}
+	else
+		mlx_string_put(fdf->mlx, fdf->window, 15, y, TXT_COLOR,
+			"Press H to show help");
 }
 
 void			draw(t_fdf *fdf, int w, int h)

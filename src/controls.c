@@ -36,14 +36,19 @@ int				mouse_pressed(int button, int mousex, int mousey, void *param)
 	return (0);
 }
 
-static void		switch_view(t_fdf *fdf)
+static void		switch_view(t_fdf *fdf, int key)
 {
-	fdf->cam->yoff -= (fdf->map->w * fdf->cam->zoom / 2) *
-		((fdf->cam->isom) ? 1 : -1);
-	fdf->cam->alph = fdf->cam->isom ? 0 : rad(-35.264);
-	fdf->cam->beta = 0;
-	fdf->cam->gamm = fdf->cam->isom ? 0 : rad(45);
-	fdf->cam->isom = !(fdf->cam->isom);
+	if (key == KB_U)
+		fdf->map->cm += 5;
+	else
+	{
+		fdf->cam->yoff -= (fdf->map->w * fdf->cam->zoom / 2) *
+			((fdf->cam->isom) ? 1 : -1);
+		fdf->cam->alph = fdf->cam->isom ? 0 : rad(-35.264);
+		fdf->cam->beta = 0;
+		fdf->cam->gamm = fdf->cam->isom ? 0 : rad(45);
+		fdf->cam->isom = !(fdf->cam->isom);
+	}
 }
 
 static void		move(int key, t_fdf *p)
@@ -90,14 +95,14 @@ int				key_pressed(int key, void *param)
 		rotate(key, fdf);
 	else if (key == KP_4 || key == KP_6 || key == KP_8 || key == KP_2)
 		move(key, fdf);
-	else if (key == KB_I)
-		switch_view(fdf);
+	else if (key == KB_I || key == KB_U)
+		switch_view(fdf, key);
 	else if (key == KP_SUBTRACT)
 		fdf->cam->zdiv += 0.333;
 	else if (key == KP_ADD && fdf->cam->zdiv >= 1.3)
 		fdf->cam->zdiv -= 0.333;
-	else if (key == KB_U)
-		fdf->map->cm += 5;
+	else if (key == KB_H)
+		fdf->showhelp = !fdf->showhelp;
 	draw(fdf, (*(*fdf).map).w, (*(*fdf).map).h);
 	return (0);
 }

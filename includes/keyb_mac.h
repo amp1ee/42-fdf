@@ -30,5 +30,6 @@
 # define KP_2						84
 # define KB_W						13
 # define KB_S						1
+# define KB_H						4
 
 #endif

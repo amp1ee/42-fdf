@@ -55,6 +55,7 @@ static t_fdf	*init_fdf(t_map *map)
 	fdf->cam->yoff = (map->h * fdf->cam->zoom) / 3;
 	fdf->cam->isom = 1;
 	fdf->cam->zdiv = 1.0;
+	fdf->showhelp = 0;
 	return (fdf);
 }
 

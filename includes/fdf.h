@@ -80,6 +80,7 @@ typedef struct			s_fdf
 	int					endian;
 	t_cam				*cam;
 	t_map				*map;
+	unsigned char		showhelp;
 }						t_fdf;
 
 t_map					*read_map(int fd);

@@ -30,5 +30,6 @@
 # define KP_2						0xff99
 # define KB_W						119
 # define KB_S						115
+# define KB_H						104
 
 #endif
