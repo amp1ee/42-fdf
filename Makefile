@@ -17,12 +17,14 @@ FLAGS		= -Wall -Wextra -Werror
 MLXFLAGS	= -lmlx
 LIBFLAGS	= -lft -L$(LIBDIR)
 MATH		= -lm
+
 OS_NAME		= $(shell uname -s)
 ifeq ($(OS_NAME), Linux)
-MLXFLAGS 	+= -lXext -lX11
+  MLXFLAGS 	+= -lXext -lX11
 else
-MLXFLAGS 	+= -framework OpenGL -framework AppKit
+  MLXFLAGS 	+= -framework OpenGL -framework AppKit
 endif
+
 LIBFT		= $(LIBDIR)libft.a
 INCL		= fdf.h readutils.h util.h keyb_{linux, mac}.h
 FDF_H		= $(HDIR)fdf.h
@@ -48,7 +50,6 @@ debug: $(SRC) $(FDF_H)
 	@gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
 
 clean:
-	@make -sC $(LIBDIR) clean
 	@rm -rf $(OBJDIR)
 	@printf '\tObject files deleted\n'
 fclean: clean
