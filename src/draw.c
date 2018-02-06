@@ -83,28 +83,30 @@ static t_point	project(int x, int y, int z, t_fdf *fdf)
 static void		print_controls(t_fdf *fdf)
 {
 	int		y;
+	int		x;
 
 	y = 30;
+	x = 15;
 	if (fdf->showhelp == 1)
 	{
-		mlx_string_put(fdf->mlx, fdf->window, 15, y, TXT_COLOR,
+		mlx_string_put(fdf->mlx, fdf->window, x, y, TXT_COLOR,
 			"CONTROLS:");
-		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		mlx_string_put(fdf->mlx, fdf->window, x, y += x, TXT_COLOR,
 			"Mouse wheel Up/Down - Zoom In/Out");
-		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		mlx_string_put(fdf->mlx, fdf->window, x, y += x, TXT_COLOR,
 			"Left mouse button - Place at cursor position");
-		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		mlx_string_put(fdf->mlx, fdf->window, x, y += x, TXT_COLOR,
 			"Up/Down, Left/Right, W/S - Rotate");
-		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		mlx_string_put(fdf->mlx, fdf->window, x, y += x, TXT_COLOR,
 			"Numpad -/+ - Flatten");
-		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		mlx_string_put(fdf->mlx, fdf->window, x, y += x, TXT_COLOR,
 			"Numpad 2/4/6/8 - Move");
-		mlx_string_put(fdf->mlx, fdf->window, 15, y += 15, TXT_COLOR,
+		mlx_string_put(fdf->mlx, fdf->window, x, y += x, TXT_COLOR,
 			"I - Switch Top/Isometric View");
 	}
 	else
-		mlx_string_put(fdf->mlx, fdf->window, 15, y, TXT_COLOR,
-			"Press H to show help");
+		mlx_string_put(fdf->mlx, fdf->window, x, HEIGHT - 5, TXT_COLOR,
+			"Press H to show controls");
 }
 
 void			draw(t_fdf *fdf, int w, int h)
