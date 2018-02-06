@@ -58,8 +58,8 @@ int					get_color(int z, t_map map)
 	color[2] = assign_point(0xD1612A, 0xDB832E);
 	color[3] = assign_point(0xDB832E, 0xE7AB32);
 	color[4] = assign_point(0xE7AB32, 0xF0CB35);
-	color[5] = assign_point(0x00421D, 0x33C355);
-	color[6] = assign_point(0x00C355, 0xAA8900);
+	color[5] = assign_point(0x00001D, 0x3355C3);
+	color[6] = assign_point(0x3355C3, 0xAA8900);
 	color[7] = assign_point(0xAA8900, 0xAA3500);
 	color[8] = assign_point(0xAA3500, 0xAA3E0B);
 	color[9] = assign_point(0xAA3E0B, 0x6CB5D8);
