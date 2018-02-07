@@ -64,18 +64,20 @@ static t_point	project(int x, int y, int z, t_fdf *fdf)
 
 	p.rgb = fdf->map->color_arr[ind(x, y, fdf->map->w, fdf->map->h)];
 	(p.rgb == -1) ? p.rgb = get_color(z, *(fdf->map)) : 0;
-	a = get_eulers(fdf->cam->alph);
-	b = get_eulers(fdf->cam->beta);
-	g = get_eulers(fdf->cam->gamm);
 	x *= fdf->cam->zoom;
 	y *= fdf->cam->zoom;
 	z *= (fdf->cam->zoom / fdf->cam->zdiv);
+	a = get_eulers(fdf->cam->alph);
+	b = get_eulers(fdf->cam->beta);
+	g = get_eulers(fdf->cam->gamm);
+	x -= (fdf->map->w * fdf->cam->zoom) / 2;
+	y -= (fdf->map->h * fdf->cam->zoom) / 2;
 	p.x = b.cos * g.cos * x + b.cos * g.sin * y + b.sin * z;
 	p.y = (-a.sin * b.sin * g.cos - a.cos * g.sin) * x +
 		(a.cos * g.cos - a.sin * b.sin * g.sin) * y + a.sin * b.cos * z;
 	p.z = (-b.sin * a.cos * g.cos + a.sin * g.sin) * x + (-b.sin *
 		a.cos * g.sin - a.sin * g.cos) * y + a.cos * b.cos * z;
-	p.x += (WIDTH - fdf->cam->zoom * fdf->map->w) / 2 + fdf->cam->xoff;
+	p.x += WIDTH / 2 + fdf->cam->xoff;
 	p.y += HEIGHT / 2 + fdf->cam->yoff;
 	return (p);
 }
