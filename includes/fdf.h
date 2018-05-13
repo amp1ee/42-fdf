@@ -13,7 +13,6 @@
 #ifndef FDF_H
 # define FDF_H
 
-#include <stdio.h> //--------------------DELETE
 # include "../libft/libft.h"
 
 # define WIDTH 1280
@@ -96,4 +95,5 @@ t_point					assign_point(int x, int y);
 int						ind(int x, int y, int w, int h);
 int						terminate(char *err);
 void					*cleanall(t_fdf *fdf);
+
 #endif

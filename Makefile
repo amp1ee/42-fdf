@@ -4,29 +4,34 @@ SRCDIR		= ./src/
 OBJDIR		= ./obj/
 HDIR		= ./includes/
 LIBDIR		= ./libft/
+MLXDIR		= ./minilibx
 SRC			= $(addprefix $(SRCDIR), \
-				main.c \
-				controls.c \
-				read.c \
-				draw.c \
-				color.c \
-				util.c \
+				main.c		\
+				controls.c	\
+				read.c		\
+				draw.c		\
+				color.c		\
+				util.c		\
 				readutils.c)
 OBJ			= $(SRC:$(SRCDIR)%.c=$(OBJDIR)%.o)
-FLAGS		= -Wall -Wextra -Werror
-MLXFLAGS	= -lmlx
-LIBFLAGS	= -lft -L$(LIBDIR)
+FLAGS		= -Wall -Wextra -Werror -O3
+LIBFLAGS	= -lft -L$(LIBDIR) -lmlx
 MATH		= -lm
 
 OS_NAME		= $(shell uname -s)
+
 ifeq ($(OS_NAME), Linux)
-  MLXFLAGS 	+= -lXext -lX11
+  LIBFLAGS	+= -lXext -lX11
 else
-  MLXFLAGS 	+= -framework OpenGL -framework AppKit
+  LIBFLAGS	+= -framework OpenGL -framework AppKit
 endif
 
 LIBFT		= $(LIBDIR)libft.a
-INCL		= fdf.h readutils.h util.h keyb_{linux, mac}.h
+LIBMLX		= $(MLXDIR)/libmlx.a
+INCL		=	fdf.h				\
+				readutils.h			\
+				util.h				\
+				keyb_{linux, mac}.h
 FDF_H		= $(HDIR)fdf.h
 
 .PHONY: all debug clean fclean re
@@ -37,14 +42,16 @@ $(OBJDIR)%.o: $(SRCDIR)%.c $(FDF_H)
 	@mkdir -p $(OBJDIR)
 	@printf '\tCompiling $<\n'
 	@gcc $(FLAGS) -c $< -o $@ -I$(HDIR)
-$(NAME): $(OBJ) $(LIBFT)
+$(NAME): $(OBJ) $(LIBMLX) $(LIBFT)
 	@printf '\tLinking\n'
-	@gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
+	@gcc $(OBJ) -o $(NAME) $(LIBFLAGS) $(MATH) -L$(MLXDIR) -F$(MLXDIR)
 	@echo 'Done'
 $(LIBFT):
-	@printf '\tAssembling libft\n'
+	@printf '\tAssembling libft.a\n'
 	@make -sC $(LIBDIR)
-
+$(LIBMLX):
+	@printf '\tBuilding libmlx.a\n'
+	@make -sC $(MLXDIR)
 debug: $(SRC) $(FDF_H)
 	@gcc -ggdb3 $(FLAGS) -c $(SRC) -I$(HDIR)
 	@gcc $(OBJ) -o $(NAME) $(MLXFLAGS) $(MATH) $(LIBFLAGS)
@@ -53,6 +60,7 @@ clean:
 	@rm -rf $(OBJDIR)
 	@printf '\tObject files deleted\n'
 fclean: clean
+	@make -sC $(LIBDIR) 'fclean'
 	@rm -f $(NAME)
 	@printf '\t$(NAME) deleted\n'
 re: fclean all
