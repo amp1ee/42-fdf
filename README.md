@@ -19,7 +19,7 @@ Install minilibx: https://achedeuzot.me/2014/12/20/installer-la-minilibx/
   make
 ```  
     *If make fails with an error like this one: "mlx_xpm.c:(.text+0x119): undefined reference to `strlcpy'"
-  just replace 'strlcpy' with 'strncpy' in minilibx sources:
+    just replace 'strlcpy' with 'strncpy' in minilibx sources:
 ```
   sed -i 's/strlcpy/strncpy/g' mlx_xpm.c
 ```
