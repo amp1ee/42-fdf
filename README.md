@@ -17,11 +17,12 @@ Install minilibx: https://achedeuzot.me/2014/12/20/installer-la-minilibx/
   tar -xvzf mlx-2014-01-06.tgz
   cd minilibx/
   make
-  
+```  
     *If make fails with an error like this one: "mlx_xpm.c:(.text+0x119): undefined reference to `strlcpy'"
-  just replace 'strlcpy' with 'strncpy' in minilibx sources.
+  just replace 'strlcpy' with 'strncpy' in minilibx sources:
 ```
-
+  sed -i 's/strlcpy/strncpy/g' mlx_xpm.c
+```
 Install:
 ```
 git clone https://github.com/amp1ee/42-fdf
