@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "fdf.h"
-#include <mlx.h>
+#include "mlx.h"
 
 int				mouse_pressed(int button, int mousex, int mousey, void *param)
 {
@@ -23,8 +23,8 @@ int				mouse_pressed(int button, int mousex, int mousey, void *param)
 		return (1);
 	else if (button == LMB)
 	{
-		fdf->cam->xoff = mousex - WIDTH / 2;
-		fdf->cam->yoff = mousey - HEIGHT / 2;
+		fdf->cam->xoff = mousex - (WIDTH >> 1);
+		fdf->cam->yoff = mousey - (HEIGHT >> 1);
 	}
 	else if (button == MWD)
 		fdf->cam->zoom--;
@@ -42,41 +42,45 @@ static void		switch_view(t_fdf *fdf, int key)
 		fdf->map->cm += 5;
 	else
 	{
-		fdf->cam->yoff -= (fdf->map->w * fdf->cam->zoom / 2) *
+		fdf->cam->yoff -= (fdf->map->w * (fdf->cam->zoom >> 1)) *
 			((fdf->cam->isom) ? 1 : -1);
-		fdf->cam->alph = fdf->cam->isom ? 0 : rad(-35.264);
-		fdf->cam->beta = 0;
-		fdf->cam->gamm = fdf->cam->isom ? 0 : rad(45);
+		fdf->cam->alph = fdf->cam->isom ? 0.0f : rad(ISOMETRIC_ANGLE_A);
+		fdf->cam->beta = fdf->cam->isom ? 0.0f : rad(ISOMETRIC_ANGLE_B);
+		fdf->cam->gamm = fdf->cam->isom ? 0.0f : rad(ISOMETRIC_ANGLE_G);
 		fdf->cam->isom = !(fdf->cam->isom);
 	}
 }
 
 static void		move(int key, t_fdf *p)
 {
+	const int	step = 10;
+
 	if (key == KP_4)
-		p->cam->xoff += 10;
+		p->cam->xoff += step;
 	else if (key == KP_6)
-		p->cam->xoff -= 10;
+		p->cam->xoff -= step;
 	else if (key == KP_8)
-		p->cam->yoff += 10;
+		p->cam->yoff += step;
 	else
-		p->cam->yoff -= 10;
+		p->cam->yoff -= step;
 }
 
 static void		rotate(int key, t_fdf *fdf)
 {
+	const float	step = rad(2.0f);
+
 	if (key == KB_UP)
-		fdf->cam->alph += rad(2);
+		fdf->cam->alph += step;
 	else if (key == KB_DOWN)
-		fdf->cam->alph -= rad(2);
+		fdf->cam->alph -= step;
 	else if (key == KB_LEFT)
-		fdf->cam->gamm += rad(2);
+		fdf->cam->gamm += step;
 	else if (key == KB_RIGHT)
-		fdf->cam->gamm -= rad(2);
+		fdf->cam->gamm -= step;
 	else if (key == KB_W)
-		fdf->cam->beta -= rad(2);
+		fdf->cam->beta -= step;
 	else
-		fdf->cam->beta += rad(2);
+		fdf->cam->beta += step;
 }
 
 int				key_pressed(int key, void *param)
@@ -98,9 +102,9 @@ int				key_pressed(int key, void *param)
 	else if (key == KB_I || key == KB_U)
 		switch_view(fdf, key);
 	else if (key == KP_SUBTRACT)
-		fdf->cam->zdiv += 0.333;
-	else if (key == KP_ADD && fdf->cam->zdiv >= 1.3)
-		fdf->cam->zdiv -= 0.333;
+		fdf->cam->zdiv += 0.333f;
+	else if (key == KP_ADD && fdf->cam->zdiv >= 1.3f)
+		fdf->cam->zdiv -= 0.333f;
 	else if (key == KB_H)
 		fdf->showhelp = !fdf->showhelp;
 	draw(fdf, (*(*fdf).map).w, (*(*fdf).map).h);

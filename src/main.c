@@ -12,7 +12,7 @@
 
 #include "fdf.h"
 #include <fcntl.h>
-#include <mlx.h>
+#include "mlx.h"
 #include <stdlib.h>
 
 void			*cleanall(t_fdf *fdf)
@@ -25,7 +25,7 @@ void			*cleanall(t_fdf *fdf)
 		ft_memdel((void **)&(fdf->map));
 	}
 	mlx_destroy_window(fdf->mlx, fdf->window);
-	// mlx_destroy_image*(fdf->mlx, fdf->img);
+	// mlx_destroy_image(fdf->mlx, fdf->img);
 	ft_bzero(fdf->pxl, WIDTH * HEIGHT * (fdf->bpp / 8));
 	ft_memdel((void **)&fdf);
 	return (NULL);
@@ -45,9 +45,9 @@ static t_fdf	*init_fdf(t_map *map)
 		&(fdf->s_line), &(fdf->endian))))
 		return (cleanall(fdf));
 	fdf->map = map;
-	fdf->cam->alph = rad(-45);
-	fdf->cam->beta = 0;
-	fdf->cam->gamm = rad(35.264);
+	fdf->cam->alph = rad(ISOMETRIC_ANGLE_A);
+	fdf->cam->beta = rad(ISOMETRIC_ANGLE_B);
+	fdf->cam->gamm = rad(ISOMETRIC_ANGLE_G);
 	fdf->cam->zoom = MIN(HEIGHT / abs(map->rng + 1),
 		((HEIGHT / map->h + WIDTH / map->w) / 4) + 1);
 	fdf->cam->zoom <= 0 ? fdf->cam->zoom = 1 : 0;

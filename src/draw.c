@@ -12,18 +12,22 @@
 
 #include "fdf.h"
 #include "util.h"
-#include <mlx.h>
+#include "mlx.h"
 
 static void		put_pxl(t_fdf *fdf, t_point p, unsigned int color)
 {
 	int		i;
+	int		j;
 
 	if (p.x >= WIDTH || p.y >= HEIGHT || p.x < 0 || p.y < 0)
 		return ;
-	i = (p.x * 4) + (p.y * fdf->s_line);
-	fdf->pxl[i] = color;
-	fdf->pxl[++i] = color >> 8;
-	fdf->pxl[++i] = color >> 16;
+	i = (p.x * (fdf->bpp >> 3)) + (p.y * fdf->s_line);
+	j = 0;
+	while (j < 3)
+	{
+		fdf->pxl[i + j] = color >> (j << 3);
+		j++;
+	}
 }
 
 static void		draw_ln(t_fdf *fdf, t_point p0, t_point p1)
@@ -70,15 +74,15 @@ static t_point	project(int x, int y, int z, t_fdf *fdf)
 	a = get_eulers(fdf->cam->alph);
 	b = get_eulers(fdf->cam->beta);
 	g = get_eulers(fdf->cam->gamm);
-	x -= (fdf->map->w * fdf->cam->zoom) / 2;
-	y -= (fdf->map->h * fdf->cam->zoom) / 2;
+	x -= (fdf->map->w * fdf->cam->zoom) >> 1;
+	y -= (fdf->map->h * fdf->cam->zoom) >> 1;
 	p.x = b.cos * g.cos * x + b.cos * g.sin * y + b.sin * z;
 	p.y = (-a.sin * b.sin * g.cos - a.cos * g.sin) * x +
 		(a.cos * g.cos - a.sin * b.sin * g.sin) * y + a.sin * b.cos * z;
 	p.z = (-b.sin * a.cos * g.cos + a.sin * g.sin) * x + (-b.sin *
 		a.cos * g.sin - a.sin * g.cos) * y + a.cos * b.cos * z;
-	p.x += WIDTH / 2 + fdf->cam->xoff;
-	p.y += HEIGHT / 2 + fdf->cam->yoff;
+	p.x += (WIDTH >> 1) + fdf->cam->xoff;
+	p.y += (HEIGHT >> 1) + fdf->cam->yoff;
 	return (p);
 }
 

@@ -28,6 +28,10 @@
 # define MWD 5
 # define MWU 4
 
+# define ISOMETRIC_ANGLE_A (-35.264f)
+# define ISOMETRIC_ANGLE_B (0.0f)
+# define ISOMETRIC_ANGLE_G (45.0f)
+
 # define INIT_ERR_MSG "ERROR: Couldn't initialize t_fdf struct"
 # define READ_ERR_MSG "ERROR: Couldn't read the specified map file"
 # define USG_ERR_MSG "Usage: ./fdf MAP_FILE"

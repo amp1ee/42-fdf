@@ -28,20 +28,16 @@ endif
 
 LIBFT		= $(LIBDIR)libft.a
 LIBMLX		= $(MLXDIR)/libmlx.a
-INCL		=	fdf.h				\
-				readutils.h			\
-				util.h				\
-				keyb_{linux, mac}.h
-FDF_H		= $(HDIR)fdf.h
+INCL		= $(wildcard $(HDIR)*.h)
 
 .PHONY: all debug clean fclean re
 
 all: $(NAME)
 
-$(OBJDIR)%.o: $(SRCDIR)%.c $(FDF_H)
+$(OBJDIR)%.o: $(SRCDIR)%.c $(INCL)
 	@mkdir -p $(OBJDIR)
 	@printf '\tCompiling $<\n'
-	@gcc $(FLAGS) -c $< -o $@ -I$(HDIR)
+	@gcc $(FLAGS) -c $< -o $@ -I$(HDIR) -I$(MLXDIR)
 $(NAME): $(OBJ) $(LIBMLX) $(LIBFT)
 	@printf '\tLinking\n'
 	@gcc $(OBJ) -o $(NAME) $(LIBFLAGS) $(MATH) -L$(MLXDIR) -F$(MLXDIR)
